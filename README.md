@@ -376,8 +376,7 @@ ZenFlashCards is committed to meeting the **WCAG AA** standard with the followin
 The project is distributed under the [MIT License](LICENSE).
 
 ```
-MIT License — Copyright (c) 2026 Lux
-```
+MIT License — Copyright (c) 2026 Hung_Vux
 
 ---
 
@@ -391,5 +390,5 @@ MIT License — Copyright (c) 2026 Lux
 ---
 
 <p align="center">
-  Made with 🧘 by <a href="https://github.com/githubuser2777">Lux</a>
+  Made with 🧘 by <a href="https://github.com/githubuser2777">Hung_Vux</a>
 </p>
