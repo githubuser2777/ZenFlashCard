@@ -19,6 +19,21 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Introduction](#-introduction)
+- [Key Features](#-key-features)
+- [Interface Preview](#-interface-preview)
+- [System Architecture](#-system-architecture)
+- [Database](#-database)
+- [SM-2 Algorithm](#-sm-2-algorithm)
+- [Design System](#-design-system)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [Extensive Documentation 📚](#-extensive-documentation)
+
+---
+
 ## 📖 Introduction
 
 **ZenFlashCards** is an Android vocabulary learning application using the Flashcard method, integrated with the **Spaced Repetition SM-2** algorithm (similar to Anki/SuperMemo). Data is stored **100% offline** using SQLite — no login required, no internet needed.
@@ -322,18 +337,24 @@ flutter test test/core/algorithms/sm2_test.dart
 
 ---
 
-## 📁 Project Documentation
+## 📁 Extensive Documentation 📚
+
+We have a dedicated **Documentation Hub** to cover every architectural and design decision in the app.
+
+👉 **[Go to the Documentation Hub (docs/index.md)](docs/index.md)** 👈
+
+Or jump directly into specific documents:
 
 | Document | Description |
 |-----------|-------|
-| [`Plan_UI/plan_UI-UX.md`](Plan_UI/plan_UI-UX.md) | Design Brief — detailed UI/UX design for 7 screens |
-| [`Plan_UI/Phase_plan.md`](Plan_UI/Phase_plan.md) | UI/UX implementation roadmap across 5 phases |
-| [`Plan_arch/plan_architect.md`](Plan_arch/plan_architect.md) | Architecture overview — schema, DAOs, SM-2, features |
-| [`Plan_arch/Phase_plan.md`](Plan_arch/Phase_plan.md) | Architecture & code implementation roadmap across 5 phases |
+| [`docs/index.md`](docs/index.md) | **Documentation Hub** — The central entry point |
+| [`docs/diagrams.md`](docs/diagrams.md) | **System Diagrams** — Detailed C4, State, and Sequence diagrams |
 | [`docs/architecture.md`](docs/architecture.md) | System architecture technical documentation |
 | [`docs/database.md`](docs/database.md) | Database schema, indexes & query patterns |
 | [`docs/design-system.md`](docs/design-system.md) | Design tokens, color, typography, components |
 | [`docs/api-reference.md`](docs/api-reference.md) | API Reference for DAOs, ViewModels & SM-2 |
+| [`Plan_arch/Phase_plan.md`](Plan_arch/Phase_plan.md) | Architecture & code implementation roadmap |
+| [`Plan_UI/Phase_plan.md`](Plan_UI/Phase_plan.md) | UI/UX implementation roadmap |
 | [`prototype/index.html`](prototype/index.html) | Interactive UI Prototype (open with browser) |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Guidelines for contributing to the project |
 
