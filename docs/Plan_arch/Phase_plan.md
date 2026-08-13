@@ -267,14 +267,14 @@ Write automated test cases to check boundaries:
    - [ ] End study session ➔ `study_logs` correctly records exactly 1 data row.
    - [ ] Bar Chart and Pie Chart accurately display real statistics.
    - [ ] Change system ThemeMode ➔ App adapts smoothly automatically.
-4. Build Debug APK command: `flutter build apk --debug`.
+4. Build Debug APK command: `flutter build apk --debug`. (Done. Note: Patched `file_picker` in pub cache to force compileSdk 36 for compatibility with Android lifecycle).
 
 ---
 
 ## ✅ ARCHITECTURE DEFINITION OF DONE (CHECKLIST)
 
-- [ ] Clean Architecture folder structure functions independently with a clear separation of UI - Domain - Data.
-- [ ] SQLite Database successfully initializes 4 tables with comprehensive Indexes.
-- [ ] SM-2 algorithm passes 100% of unit test cases in `sm2_test.dart`.
-- [ ] CSV file handling reads both path and fallback bytes for Android 13+ SAF.
-- [ ] No memory leaks regarding `AnimationController` or `StreamController`.
+- [x] Clean Architecture folder structure functions independently with a clear separation of UI - Domain - Data.
+- [x] SQLite Database successfully initializes 4 tables with comprehensive Indexes.
+- [x] SM-2 algorithm passes 100% of unit test cases in `sm2_test.dart`.
+- [x] CSV file handling reads both path and fallback bytes for Android 13+ SAF.
+- [x] No memory leaks regarding `AnimationController` or `StreamController`.

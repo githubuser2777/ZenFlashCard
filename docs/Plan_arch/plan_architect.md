@@ -668,5 +668,5 @@ void main() {
 ```bash
 # Build to ensure no compile errors
 flutter analyze
-flutter build apk --debug
+flutter build apk --debug # (Done. Note: file_picker patched in pub-cache for compileSdk 36)
 ```

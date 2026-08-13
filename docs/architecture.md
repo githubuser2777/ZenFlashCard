@@ -194,10 +194,10 @@ graph TD
 - **Reason**: Bar charts and streaks only need aggregates; pie charts require granular quality data.
 - **Trade-off**: Results in more rows in `review_history`, but offline SQLite handles this effortlessly.
 
-### ADR-003: SAF (Storage Access Framework) for file picker
+### ADR-003: SAF (Storage Access Framework) & file_picker Compatibility
 
-- **Decision**: Use `Intent.ACTION_OPEN_DOCUMENT` via `file_picker`, do not declare storage permissions.
-- **Reason**: Android 13+ scoped storage does not allow direct filesystem access; declaring unnecessary permissions will cause rejection by the Play Store.
+- **Decision**: Use `Intent.ACTION_OPEN_DOCUMENT` via `file_picker` (v8.1.2), do not declare storage permissions. Patched `file_picker` pub cache to `compileSdk 36` to satisfy Flutter's modern Android lifecycle requirements.
+- **Reason**: Android 13+ scoped storage requires SAF. Newer `file_picker` (v11) had Kotlin plugin compilation issues, while older versions locked `compileSdk` to 34. Patching the cache bypassed these issues.
 - **Fallback**: Always request `withData: true` to get `PlatformFile.bytes` when `path == null`.
 
 ### ADR-004: Provider instead of Riverpod/Bloc
