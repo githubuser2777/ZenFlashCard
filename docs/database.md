@@ -1,17 +1,17 @@
-# 🗄️ Tài Liệu Database — ZenFlashCards
+# 🗄️ Database Documentation — ZenFlashCards
 
-> Chi tiết schema, indexes, query patterns và migration strategy cho SQLite database.
+> Schema details, indexes, query patterns, and migration strategy for the SQLite database.
 
 ---
 
-## 1. Tổng Quan Database
+## 1. Database Overview
 
-| Thuộc tính | Giá trị |
+| Property | Value |
 |-----------|---------|
 | Engine | SQLite (via `sqflite` package) |
-| Lưu trữ | 100% offline, local device |
-| Số bảng | 4 |
-| Số indexes | 6 |
+| Storage | 100% offline, local device |
+| Number of Tables | 4 |
+| Number of Indexes | 6 |
 | ID Strategy | UUID v4 (text) |
 | Timestamp | Unix milliseconds (integer) |
 
@@ -59,7 +59,7 @@ erDiagram
         text id PK "UUID v4"
         text card_id FK "→ flashcards.id, CASCADE"
         text deck_id FK "→ decks.id"
-        integer quality "0=Khó, 3=OK, 5=Dễ"
+        integer quality "0=Hard, 3=OK, 5=Easy"
         integer reviewed_at "Unix ms"
     }
 ```
@@ -68,7 +68,7 @@ erDiagram
 
 ## 3. Schema DDL
 
-### 3.1. Bảng `decks`
+### 3.1. `decks` Table
 
 ```sql
 CREATE TABLE decks (
@@ -81,9 +81,9 @@ CREATE TABLE decks (
 );
 ```
 
-> **Ghi chú**: Không có cột `card_count` — tính động bằng `SELECT COUNT(*) FROM flashcards WHERE deck_id = ?` để tránh data inconsistency.
+> **Note**: There is no `card_count` column — calculated dynamically using `SELECT COUNT(*) FROM flashcards WHERE deck_id = ?` to prevent data inconsistency.
 
-### 3.2. Bảng `flashcards`
+### 3.2. `flashcards` Table
 
 ```sql
 CREATE TABLE flashcards (
@@ -103,9 +103,9 @@ CREATE INDEX idx_flashcards_deck ON flashcards(deck_id);
 CREATE INDEX idx_flashcards_next_review ON flashcards(next_review);
 ```
 
-> **Khởi tạo `next_review`**: Set bằng `DateTime.now().millisecondsSinceEpoch` khi tạo card mới → card xuất hiện ngay trong lượt ôn đầu tiên.
+> **Initializing `next_review`**: Set to `DateTime.now().millisecondsSinceEpoch` when creating a new card → card appears immediately in the first review session.
 
-### 3.3. Bảng `study_logs`
+### 3.3. `study_logs` Table
 
 ```sql
 CREATE TABLE study_logs (
@@ -119,9 +119,9 @@ CREATE TABLE study_logs (
 CREATE INDEX idx_study_logs_date ON study_logs(studied_at);
 ```
 
-> **Quy tắc ghi**: Chỉ insert **1 row khi kết thúc buổi học** (tất cả cards due đã được review). Dùng cho bar chart 7 ngày và tính streak.
+> **Logging Rule**: Only insert **1 row when finishing a study session** (all due cards have been reviewed). Used for the 7-day bar chart and calculating streaks.
 
-### 3.4. Bảng `review_history`
+### 3.4. `review_history` Table
 
 ```sql
 CREATE TABLE review_history (
@@ -137,27 +137,27 @@ CREATE INDEX idx_review_history_card ON review_history(card_id);
 CREATE INDEX idx_review_history_deck ON review_history(deck_id);
 ```
 
-> **Quy tắc ghi**: Insert **1 row mỗi lần user bấm Khó/OK/Dễ** cho 1 card. Dùng cho pie chart breakdown quality.
+> **Logging Rule**: Insert **1 row every time the user clicks Hard/OK/Easy** for 1 card. Used for the quality breakdown pie chart.
 
 ---
 
 ## 4. Index Strategy
 
-| Index | Bảng | Cột | Phục vụ query |
-|-------|------|-----|---------------|
-| `idx_flashcards_deck` | flashcards | deck_id | Load cards theo deck |
+| Index | Table | Column | Serves Query |
+|-------|-------|--------|--------------|
+| `idx_flashcards_deck` | flashcards | deck_id | Load cards by deck |
 | `idx_flashcards_next_review` | flashcards | next_review | Cards due today (`<= now`) |
-| `idx_study_logs_date` | study_logs | studied_at | Bar chart 7 ngày, streak |
-| `idx_review_history_card` | review_history | card_id | Lịch sử review 1 card |
-| `idx_review_history_deck` | review_history | deck_id | Pie chart theo deck |
+| `idx_study_logs_date` | study_logs | studied_at | 7-day bar chart, streak |
+| `idx_review_history_card` | review_history | card_id | Review history for 1 card |
+| `idx_review_history_deck` | review_history | deck_id | Pie chart by deck |
 
-> **Deferred index**: `idx_review_history_date` trên `reviewed_at` sẽ thêm ở v2 khi cần heatmap/date-range filter.
+> **Deferred index**: `idx_review_history_date` on `reviewed_at` will be added in v2 when a heatmap/date-range filter is needed.
 
 ---
 
-## 5. Query Patterns Thường Dùng
+## 5. Common Query Patterns
 
-### Cards Due Today (Cho 1 Deck)
+### Cards Due Today (For 1 Deck)
 
 ```sql
 SELECT * FROM flashcards
@@ -166,21 +166,21 @@ ORDER BY next_review ASC;
 -- ? = deckId, ? = DateTime.now().millisecondsSinceEpoch
 ```
 
-### Tổng Cards Due Today (Tất Cả Deck — Home Badge)
+### Total Cards Due Today (All Decks — Home Badge)
 
 ```sql
 SELECT COUNT(*) as count FROM flashcards
 WHERE next_review <= ?;
 ```
 
-### Card Count Trong Deck
+### Card Count in a Deck
 
 ```sql
 SELECT COUNT(*) as count FROM flashcards
 WHERE deck_id = ?;
 ```
 
-### Cards Due Per Deck (Cho Home Screen)
+### Cards Due Per Deck (For Home Screen)
 
 ```sql
 SELECT deck_id, COUNT(*) as due_count FROM flashcards
@@ -188,7 +188,7 @@ WHERE next_review <= ?
 GROUP BY deck_id;
 ```
 
-### Bar Chart — Cards Học Trong 7 Ngày
+### Bar Chart — Cards Studied Over 7 Days
 
 ```sql
 SELECT studied_at, SUM(cards_studied) as total
@@ -196,10 +196,10 @@ FROM study_logs
 WHERE studied_at >= ?
 GROUP BY DATE(studied_at / 1000, 'unixepoch')
 ORDER BY studied_at ASC;
--- ? = 7 ngày trước (milliseconds)
+-- ? = 7 days ago (milliseconds)
 ```
 
-### Pie Chart — Phân Bố Quality Theo Deck
+### Pie Chart — Quality Distribution By Deck
 
 ```sql
 SELECT quality, COUNT(*) as count
@@ -208,13 +208,13 @@ WHERE deck_id = ?
 GROUP BY quality;
 ```
 
-### Streak — Chuỗi Ngày Học Liên Tục
+### Streak — Consecutive Study Days
 
 ```sql
 SELECT DISTINCT DATE(studied_at / 1000, 'unixepoch') as study_date
 FROM study_logs
 ORDER BY study_date DESC;
--- Đếm số ngày liên tục từ hôm nay trở về trước
+-- Count consecutive days backwards from today
 ```
 
 ### Check Duplicate Card
@@ -231,15 +231,15 @@ LIMIT 1;
 
 ### Version 1 (Initial)
 
-Tạo đầy đủ 4 bảng + 6 indexes như mô tả ở trên.
+Create all 4 tables + 6 indexes as described above.
 
 ### Version 2 (Planned)
 
 ```sql
--- Thêm index cho date-range query trên review_history
+-- Add index for date-range queries on review_history
 CREATE INDEX idx_review_history_date ON review_history(reviewed_at);
 
--- Nếu thêm tính năng TTS
+-- If adding TTS functionality
 ALTER TABLE flashcards ADD COLUMN audio_url TEXT;
 ```
 
@@ -250,7 +250,7 @@ await openDatabase(
   path,
   version: 2,
   onCreate: (db, version) async {
-    // Tạo tất cả bảng v2
+    // Create all v2 tables
   },
   onUpgrade: (db, oldVersion, newVersion) async {
     if (oldVersion < 2) {

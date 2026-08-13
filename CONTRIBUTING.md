@@ -1,124 +1,124 @@
 # Contributing to ZenFlashCards
 
-Cảm ơn bạn đã quan tâm đến ZenFlashCards! Dưới đây là hướng dẫn đóng góp cho dự án.
+Thank you for your interest in ZenFlashCards! Below are the guidelines for contributing to the project.
 
 ---
 
-## 🚀 Bắt Đầu Nhanh
+## 🚀 Quick Start
 
-### Yêu Cầu Hệ Thống
+### System Requirements
 
-| Công cụ        | Phiên bản tối thiểu |
+| Tool | Minimum Version |
 |-----------------|---------------------|
-| Flutter SDK     | 3.x                 |
-| Dart SDK        | 3.x                 |
-| Android SDK     | API 21+ (minSdk)    |
-| Android Studio  | Latest stable        |
+| Flutter SDK | 3.x |
+| Dart SDK | 3.x |
+| Android SDK | API 21+ (minSdk) |
+| Android Studio | Latest stable |
 
-### Cài Đặt Môi Trường
+### Environment Setup
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/githubuser2777/ZenFlashCard.git
 cd ZenFlashCard
 
-# 2. Cài đặt dependencies
+# 2. Install dependencies
 flutter pub get
 
-# 3. Kiểm tra môi trường
+# 3. Check environment
 flutter doctor
 
-# 4. Chạy app trên emulator hoặc thiết bị
+# 4. Run the app on an emulator or device
 flutter run
 ```
 
 ---
 
-## 📐 Quy Tắc Code
+## 📐 Coding Standards
 
-### Cấu Trúc Thư Mục
+### Directory Structure
 
-Dự án tuân theo **Clean Architecture + Feature-Driven Structure**:
+The project follows a **Clean Architecture + Feature-Driven Structure**:
 
 ```
 lib/
 ├── core/         # Database, Models, Algorithms, Utils
-├── features/     # Các tính năng (Home, Deck, Study, Stats, Settings)
-└── shared/       # Widgets & Theme dùng chung
+├── features/     # Features (Home, Deck, Study, Stats, Settings)
+└── shared/       # Shared Widgets & Theme
 ```
 
-### Quy Ước Đặt Tên
+### Naming Conventions
 
-- **Files**: `snake_case.dart` (VD: `deck_dao.dart`, `study_viewmodel.dart`)
-- **Classes**: `PascalCase` (VD: `FlashCard`, `DeckViewModel`)
-- **Variables/Functions**: `camelCase` (VD: `getCardsDueToday()`)
-- **Constants**: `camelCase` với prefix `k` hoặc `const` (VD: `const kMinEasiness = 1.3`)
+- **Files**: `snake_case.dart` (e.g., `deck_dao.dart`, `study_viewmodel.dart`)
+- **Classes**: `PascalCase` (e.g., `FlashCard`, `DeckViewModel`)
+- **Variables/Functions**: `camelCase` (e.g., `getCardsDueToday()`)
+- **Constants**: `camelCase` with prefix `k` or `const` (e.g., `const kMinEasiness = 1.3`)
 
 ### Dart Best Practices
 
-- Sử dụng `const` constructors khi có thể
-- Dispose `AnimationController` và `StreamController` đúng cách (tránh memory leaks)
-- Ưu tiên immutable data classes với `toMap()` / `fromMap()`
+- Use `const` constructors whenever possible
+- Dispose `AnimationController` and `StreamController` properly (to avoid memory leaks)
+- Prefer immutable data classes with `toMap()` / `fromMap()`
 
 ---
 
 ## 🧪 Testing
 
-### Chạy Tests
+### Running Tests
 
 ```bash
-# Unit tests cho SM-2 algorithm
+# Unit tests for SM-2 algorithm
 flutter test test/core/algorithms/sm2_test.dart
 
-# Toàn bộ test suite
+# Entire test suite
 flutter test
 
-# Kiểm tra tĩnh
+# Static analysis
 flutter analyze
 ```
 
-### Viết Test Mới
+### Writing New Tests
 
-- Đặt test files trong thư mục `test/` phản ánh cấu trúc `lib/`
-- Mỗi test file kết thúc bằng `_test.dart`
-- Sử dụng `group()` để nhóm các test case liên quan
+- Place test files in the `test/` directory mirroring the `lib/` structure
+- Every test file must end with `_test.dart`
+- Use `group()` to group related test cases
 
 ---
 
-## 🔀 Quy Trình Pull Request
+## 🔀 Pull Request Process
 
-1. **Fork** repository
-2. Tạo **feature branch**: `git checkout -b feature/ten-tinh-nang`
-3. **Commit** với message rõ ràng: `git commit -m "feat: thêm tính năng XYZ"`
-4. **Push** lên fork: `git push origin feature/ten-tinh-nang`
-5. Tạo **Pull Request** vào branch `main`
+1. **Fork** the repository
+2. Create a **feature branch**: `git checkout -b feature/feature-name`
+3. **Commit** with a clear message: `git commit -m "feat: add XYZ feature"`
+4. **Push** to the fork: `git push origin feature/feature-name`
+5. Create a **Pull Request** to the `main` branch
 
 ### Commit Message Convention
 
 ```
-feat: thêm tính năng mới
-fix: sửa lỗi
-docs: cập nhật tài liệu
-style: thay đổi format (không ảnh hưởng logic)
-refactor: tái cấu trúc code
-test: thêm hoặc sửa tests
-chore: cập nhật build scripts, dependencies
+feat: add a new feature
+fix: fix a bug
+docs: update documentation
+style: format changes (does not affect logic)
+refactor: refactor code
+test: add or modify tests
+chore: update build scripts, dependencies
 ```
 
 ---
 
-## 🐛 Báo Lỗi
+## 🐛 Bug Reporting
 
-Khi báo lỗi, vui lòng cung cấp:
+When reporting a bug, please provide:
 
-1. **Mô tả lỗi** rõ ràng
-2. **Bước tái hiện** cụ thể
-3. **Kết quả mong đợi** vs **Kết quả thực tế**
-4. **Thông tin thiết bị**: Model, Android version, Flutter version
-5. **Screenshots / Logs** nếu có
+1. A clear **Bug description**
+2. Specific **Steps to reproduce**
+3. **Expected result** vs **Actual result**
+4. **Device information**: Model, Android version, Flutter version
+5. **Screenshots / Logs** if available
 
 ---
 
 ## 📜 License
 
-Bằng việc đóng góp cho dự án, bạn đồng ý rằng code của bạn sẽ được phân phối theo [MIT License](LICENSE).
+By contributing to the project, you agree that your code will be distributed under the [MIT License](LICENSE).

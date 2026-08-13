@@ -5,7 +5,7 @@
 <h1 align="center">ZenFlashCards</h1>
 
 <p align="center">
-  <em>Dark · Calm · Focused — Học từ vựng theo phong cách Zen</em>
+  <em>Dark · Calm · Focused — Learn vocabulary the Zen way</em>
 </p>
 
 <p align="center">
@@ -19,38 +19,38 @@
 
 ---
 
-## 📖 Giới Thiệu
+## 📖 Introduction
 
-**ZenFlashCards** là ứng dụng Android học từ vựng theo phương pháp Flashcard, tích hợp thuật toán **Spaced Repetition SM-2** (tương tự Anki/SuperMemo). Dữ liệu được lưu trữ **100% offline** bằng SQLite — không cần đăng nhập, không cần internet.
+**ZenFlashCards** is an Android vocabulary learning application using the Flashcard method, integrated with the **Spaced Repetition SM-2** algorithm (similar to Anki/SuperMemo). Data is stored **100% offline** using SQLite — no login required, no internet needed.
 
-### ✨ Tính Năng Chính
+### ✨ Key Features
 
-| Tính năng | Mô tả |
+| Feature | Description |
 |-----------|-------|
-| 🃏 **Flashcard 3D Flip** | Lật thẻ với animation 3D xoay trục Y mượt mà (400ms) |
-| 🧠 **Spaced Repetition (SM-2)** | Thuật toán lặp lại ngắt quãng tự động tính thời điểm ôn tối ưu |
-| 🎯 **Quiz Trắc Nghiệm** | Kiểm tra kiến thức với 4 lựa chọn, phản hồi tức thì |
-| 📊 **Thống Kê Chi Tiết** | Streak học liên tục, biểu đồ cột 7 ngày, biểu đồ tròn phân bổ đánh giá |
-| 📥 **Import CSV** | Nhập hàng loạt từ vựng từ file CSV (hỗ trợ Android 13+ SAF) |
-| 🌙 **Dark / Light Mode** | Giao diện Zen tối tối giản, hỗ trợ chế độ sáng & theo hệ thống |
-| 🌍 **Đa Ngôn Ngữ** | Hỗ trợ tạo bộ thẻ cho bất kỳ cặp ngôn ngữ nào |
-| ♿ **WCAG AA** | Đạt chuẩn Accessibility với tín hiệu thị giác kép (màu + icon) |
+| 🃏 **3D Flip Flashcard** | Flip cards with smooth Y-axis 3D rotation animation (400ms) |
+| 🧠 **Spaced Repetition (SM-2)** | Spaced repetition algorithm automatically calculates optimal review times |
+| 🎯 **Multiple Choice Quiz** | Test knowledge with 4 options and instant feedback |
+| 📊 **Detailed Statistics** | Consecutive learning streak, 7-day bar chart, rating distribution pie chart |
+| 📥 **Import CSV** | Bulk import vocabulary from CSV files (supports Android 13+ SAF) |
+| 🌙 **Dark / Light Mode** | Minimalist dark Zen interface, supports light mode & system default |
+| 🌍 **Multi-language** | Support creating card decks for any language pair |
+| ♿ **WCAG AA** | Reaches Accessibility standards with dual visual cues (color + icon) |
 
 ---
 
-## 📸 Xem Trước Giao Diện
+## 📸 Interface Preview
 
-> Bản Interactive Prototype có tại [`prototype/index.html`](prototype/index.html) — mở bằng trình duyệt để trải nghiệm tương tác đầy đủ cả 7 màn hình.
+> An Interactive Prototype is available at [`prototype/index.html`](prototype/index.html) — open with a browser for a fully interactive experience of all 7 screens.
 
 | Home | Study | Quiz | Stats |
 |:----:|:-----:|:----:|:-----:|
-| Danh sách Deck với badge due today | Flashcard 3D Flip với 3 nút đánh giá | Trắc nghiệm 4 đáp án với phản hồi ✓/✗ | Streak 🔥 & biểu đồ thống kê |
+| Deck list with due today badge | 3D Flip Flashcard with 3 rating buttons | 4-option multiple choice with ✓/✗ feedback | Streak 🔥 & statistics charts |
 
 ---
 
-## 🏗️ Kiến Trúc Hệ Thống
+## 🏗️ System Architecture
 
-### Tổng Quan Kiến Trúc
+### Architecture Overview
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -68,7 +68,7 @@
 └──────────────────────────────────────────────┘
 ```
 
-### Cấu Trúc Thư Mục
+### Directory Structure
 
 ```
 lib/
@@ -104,26 +104,26 @@ lib/
     └── theme/                         # AppTheme, AppColors tokens
 ```
 
-### Luồng Dữ Liệu
+### Data Flow
 
 ```mermaid
 flowchart TD
-    A["🏠 Home — Danh sách Deck"] --> B["📋 Deck Detail"]
+    A["🏠 Home — Deck List"] --> B["📋 Deck Detail"]
     B --> C["📚 Study — Flashcard Flip"]
-    B --> D["🎯 Quiz — Trắc nghiệm"]
+    B --> D["🎯 Quiz — Multiple Choice"]
     B --> E["📥 Import CSV"]
-    B --> F["✏️ Thêm / Sửa Card"]
+    B --> F["✏️ Add / Edit Card"]
     A --> G["📊 Stats — Streak & Charts"]
     A --> H["⚙️ Settings — Theme"]
-    C --> I["🏆 Kết quả buổi học"]
+    C --> I["🏆 Session Results"]
     D --> I
 ```
 
 ---
 
-## 🗄️ Cơ Sở Dữ Liệu
+## 🗄️ Database
 
-SQLite với **4 bảng** và **6 indexes** tối ưu:
+SQLite with **4 tables** and **6 optimized indexes**:
 
 ```mermaid
 erDiagram
@@ -170,64 +170,64 @@ erDiagram
     }
 ```
 
-> **Quy tắc ghi dữ liệu**: `review_history` ghi **mỗi lần lật card** (granular). `study_logs` chỉ ghi **1 row khi kết thúc buổi** (aggregate). Thiết kế này cho phép pie chart breakdown Khó/OK/Dễ mà không làm phồng bảng aggregate.
+> **Data writing rule**: `review_history` writes **on every card flip** (granular). `study_logs` writes only **1 row at the end of the session** (aggregate). This design allows a pie chart breakdown of Hard/OK/Easy without bloating the aggregate table.
 
 ---
 
-## 🧠 Thuật Toán SM-2
+## 🧠 SM-2 Algorithm
 
-Triển khai thuật toán **SuperMemo 2** chuẩn:
+Implementation of the standard **SuperMemo 2** algorithm:
 
 ```
 Input:  repetition, easiness (EF), interval, quality (0-5)
 Output: new_repetition, new_easiness, new_interval, next_review_date
 
-Quy tắc:
-├── quality < 3 (Khó)  → reset repetition = 0, interval = 1 ngày
-├── quality ≥ 3 (OK/Dễ) → repetition++
-│   ├── rep = 1 → interval = 1 ngày
-│   ├── rep = 2 → interval = 6 ngày
+Rules:
+├── quality < 3 (Hard)  → reset repetition = 0, interval = 1 day
+├── quality ≥ 3 (OK/Easy) → repetition++
+│   ├── rep = 1 → interval = 1 day
+│   ├── rep = 2 → interval = 6 days
 │   └── rep > 2 → interval = interval × EF
 └── EF = EF + (0.1 - (5-q) × (0.08 + (5-q) × 0.02))
     └── EF minimum = 1.3
 ```
 
-**Mapping quality từ UI:**
+**UI quality mapping:**
 
-| Nút | Emoji | Quality SM-2 | Ý nghĩa |
+| Button | Emoji | SM-2 Quality | Meaning |
 |-----|-------|:------------:|---------|
-| Khó | 😅 | 0 | Reset, ôn lại ngày mai |
-| OK | 😊 | 3 | Nhớ được, giãn nhẹ |
-| Dễ | 😎 | 5 | Thuộc rồi, giãn xa |
+| Hard | 😅 | 0 | Reset, review again tomorrow |
+| OK | 😊 | 3 | Remembered, space slightly |
+| Easy | 😎 | 5 | Mastered, space further |
 
 ---
 
 ## 🎨 Design System
 
-### Bảng Màu
+### Color Palette
 
-| Token | Dark Mode | Light Mode | Vai trò |
+| Token | Dark Mode | Light Mode | Role |
 |-------|:---------:|:----------:|---------|
-| `bg_main` | `#0F172A` | `#F8FAFC` | Nền chính |
+| `bg_main` | `#0F172A` | `#F8FAFC` | Main background |
 | `bg_surface` | `#1E293B` | `#FFFFFF` | Card, bottom bar |
 | `primary` | `#4F46E5` | `#4F46E5` | Accent Indigo |
-| `text_primary` | `#F8FAFC` | `#0F172A` | Chữ chính |
-| `text_secondary` | `#94A3B8` | — | Chữ phụ |
+| `text_primary` | `#F8FAFC` | `#0F172A` | Primary text |
+| `text_secondary` | `#94A3B8` | — | Secondary text |
 | `text_caption` | `#A0AEC0` | — | Caption (WCAG AA ≥ 4.5:1) |
-| `rate_hard` | `#EF4444` | — | Đánh giá: Khó |
-| `rate_ok` | `#F59E0B` | — | Đánh giá: OK |
-| `rate_easy` | `#22C55E` | — | Đánh giá: Dễ |
+| `rate_hard` | `#EF4444` | — | Rating: Hard |
+| `rate_ok` | `#F59E0B` | — | Rating: OK |
+| `rate_easy` | `#22C55E` | — | Rating: Easy |
 
 ### Typography — Inter
 
-| Style | Size | Weight | Dùng cho |
+| Style | Size | Weight | Used for |
 |-------|:----:|:------:|----------|
-| Display | 32sp | Bold 700 | Từ vựng flashcard |
-| Headline | 20sp | SemiBold 600 | Tên deck, title |
-| Title | 16sp | SemiBold 600 | Tên card list |
-| Body | 14sp | Regular 400 | Mô tả, subtitle |
+| Display | 32sp | Bold 700 | Flashcard vocabulary |
+| Headline | 20sp | SemiBold 600 | Deck name, title |
+| Title | 16sp | SemiBold 600 | Card list name |
+| Body | 14sp | Regular 400 | Description, subtitle |
 | Label | 12sp | Medium 500 | Tag, badge |
-| Caption | 11sp | Regular 400 | Metadata nhỏ |
+| Caption | 11sp | Regular 400 | Small metadata |
 
 ### Shape System
 
@@ -242,7 +242,7 @@ Quy tắc:
 
 ## 🛠️ Tech Stack
 
-| Layer | Công nghệ | Phiên bản |
+| Layer | Technology | Version |
 |-------|----------|:---------:|
 | Framework | Flutter | 3.x |
 | Language | Dart | 3.x |
@@ -258,29 +258,29 @@ Quy tắc:
 
 ---
 
-## 🚀 Bắt Đầu
+## 🚀 Getting Started
 
-### Yêu Cầu
+### Requirements
 
-- Flutter SDK 3.x trở lên
-- Dart SDK 3.x trở lên
+- Flutter SDK 3.x or higher
+- Dart SDK 3.x or higher
 - Android SDK (API 21+ / Android 5.0+)
-- Android Studio hoặc VS Code với Flutter extension
+- Android Studio or VS Code with Flutter extension
 
-### Cài Đặt
+### Installation
 
 ```bash
 # Clone repository
 git clone https://github.com/githubuser2777/ZenFlashCard.git
 cd ZenFlashCard
 
-# Cài đặt dependencies
+# Install dependencies
 flutter pub get
 
-# Kiểm tra môi trường
+# Check environment
 flutter doctor
 
-# Chạy trên emulator hoặc thiết bị
+# Run on emulator or device
 flutter run
 ```
 
@@ -293,7 +293,7 @@ flutter build apk --debug
 # Release build
 flutter build apk --release
 
-# Kiểm tra tĩnh
+# Static analysis
 flutter analyze
 ```
 
@@ -302,57 +302,57 @@ flutter analyze
 ## 🧪 Testing
 
 ```bash
-# Chạy toàn bộ test suite
+# Run the entire test suite
 flutter test
 
-# Chạy riêng SM-2 unit tests
+# Run only SM-2 unit tests
 flutter test test/core/algorithms/sm2_test.dart
 ```
 
-### Các Test Case SM-2
+### SM-2 Test Cases
 
-| # | Test Case | Kết quả mong đợi |
+| # | Test Case | Expected Result |
 |:-:|-----------|-------------------|
 | 1 | `quality < 3` | Reset `repetition = 0`, `interval = 1` |
-| 2 | Lần ôn đúng thứ 1 | `interval = 1` ngày |
-| 3 | Lần ôn đúng thứ 2 | `interval = 6` ngày |
-| 4 | `quality = 5` (Dễ) | `easiness` tăng > 2.5 |
-| 5 | EF giảm mạnh | `easiness` không bao giờ < 1.3 |
-| 6 | `next_review` | Luôn ở thời điểm tương lai |
+| 2 | 1st correct review | `interval = 1` day |
+| 3 | 2nd correct review | `interval = 6` days |
+| 4 | `quality = 5` (Easy) | `easiness` increases > 2.5 |
+| 5 | Sharp EF decrease | `easiness` never < 1.3 |
+| 6 | `next_review` | Always a future date |
 
 ---
 
-## 📁 Tài Liệu Dự Án
+## 📁 Project Documentation
 
-| Tài liệu | Mô tả |
+| Document | Description |
 |-----------|-------|
-| [`Plan_UI/plan_UI-UX.md`](Plan_UI/plan_UI-UX.md) | Design Brief — thiết kế UI/UX chi tiết 7 màn hình |
-| [`Plan_UI/Phase_plan.md`](Plan_UI/Phase_plan.md) | Lộ trình triển khai UI/UX theo 5 giai đoạn |
-| [`Plan_arch/plan_architect.md`](Plan_arch/plan_architect.md) | Kiến trúc tổng quan — schema, DAOs, SM-2, features |
-| [`Plan_arch/Phase_plan.md`](Plan_arch/Phase_plan.md) | Lộ trình triển khai kiến trúc & code theo 5 giai đoạn |
-| [`docs/architecture.md`](docs/architecture.md) | Tài liệu kỹ thuật kiến trúc hệ thống |
-| [`docs/database.md`](docs/database.md) | Schema database, indexes & query patterns |
+| [`Plan_UI/plan_UI-UX.md`](Plan_UI/plan_UI-UX.md) | Design Brief — detailed UI/UX design for 7 screens |
+| [`Plan_UI/Phase_plan.md`](Plan_UI/Phase_plan.md) | UI/UX implementation roadmap across 5 phases |
+| [`Plan_arch/plan_architect.md`](Plan_arch/plan_architect.md) | Architecture overview — schema, DAOs, SM-2, features |
+| [`Plan_arch/Phase_plan.md`](Plan_arch/Phase_plan.md) | Architecture & code implementation roadmap across 5 phases |
+| [`docs/architecture.md`](docs/architecture.md) | System architecture technical documentation |
+| [`docs/database.md`](docs/database.md) | Database schema, indexes & query patterns |
 | [`docs/design-system.md`](docs/design-system.md) | Design tokens, color, typography, components |
-| [`docs/api-reference.md`](docs/api-reference.md) | API Reference cho DAOs, ViewModels & SM-2 |
-| [`prototype/index.html`](prototype/index.html) | Interactive UI Prototype (mở bằng browser) |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Hướng dẫn đóng góp cho dự án |
+| [`docs/api-reference.md`](docs/api-reference.md) | API Reference for DAOs, ViewModels & SM-2 |
+| [`prototype/index.html`](prototype/index.html) | Interactive UI Prototype (open with browser) |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Guidelines for contributing to the project |
 
 ---
 
 ## ♿ Accessibility (WCAG AA)
 
-ZenFlashCards cam kết đạt chuẩn **WCAG AA** với các biện pháp:
+ZenFlashCards is committed to meeting the **WCAG AA** standard with the following measures:
 
-- **Contrast Ratio**: Text caption `#A0AEC0` trên surface `#1E293B` đạt **5.2:1** (vượt ngưỡng AA 4.5:1)
-- **Tín hiệu kép**: Quiz dùng cả **màu sắc** (xanh/đỏ) lẫn **icon** (✓/✗) cho người mù màu
-- **Emoji bổ trợ**: Nút đánh giá kèm emoji (😅😊😎) không chỉ dựa vào màu
-- **Touch Target**: Tất cả vùng tương tác tối thiểu **48dp × 48dp**
+- **Contrast Ratio**: Caption text `#A0AEC0` on surface `#1E293B` achieves **5.2:1** (exceeds AA threshold of 4.5:1)
+- **Dual Cues**: Quiz uses both **colors** (green/red) and **icons** (✓/✗) for colorblind users
+- **Supplementary Emojis**: Rating buttons include emojis (😅😊😎) so they don't rely solely on color
+- **Touch Target**: All interactive areas are at least **48dp × 48dp**
 
 ---
 
 ## 📜 License
 
-Dự án được phân phối theo giấy phép [MIT License](LICENSE).
+The project is distributed under the [MIT License](LICENSE).
 
 ```
 MIT License — Copyright (c) 2026 Lux
@@ -362,9 +362,9 @@ MIT License — Copyright (c) 2026 Lux
 
 ## 🙏 Credits
 
-- **SM-2 Algorithm**: Dựa trên [SuperMemo 2](https://www.supermemo.com/en/archives1990-2015/english/ol/sm2) bởi Piotr Woźniak
-- **Design Inspiration**: Zen philosophy — tối giản, tập trung, không xao nhãng
-- **Font**: [Inter](https://fonts.google.com/specimen/Inter) bởi Rasmus Andersson
+- **SM-2 Algorithm**: Based on [SuperMemo 2](https://www.supermemo.com/en/archives1990-2015/english/ol/sm2) by Piotr Woźniak
+- **Design Inspiration**: Zen philosophy — minimalist, focused, distraction-free
+- **Font**: [Inter](https://fonts.google.com/specimen/Inter) by Rasmus Andersson
 - **Icons**: Material Design 3 system icons
 
 ---

@@ -1,237 +1,237 @@
 # 🎨 ZenFlashCards — UI/UX Design Brief
 
-> Tài liệu mô tả ý tưởng thiết kế để dùng làm prompt cho Stitch.
+> Document describing the design concept to be used as a prompt for Stitch.
 
 ---
 
-## Tinh thần thiết kế (Design Vision)
+## Design Vision
 
-**Zen** — tối giản, yên tĩnh, không gây phân tâm. Người dùng mở app để học, không phải để thưởng thức animation. Mọi thứ phải nhanh, rõ, dễ chạm. Cảm giác tổng thể: *dark, calm, focused* — như ngồi trong phòng tối với một cuốn sách và ánh đèn nhỏ.
+**Zen** — minimalist, quiet, distraction-free. Users open the app to study, not to enjoy animations. Everything must be fast, clear, and easy to touch. Overall feel: *dark, calm, focused* — like sitting in a dark room with a book and a small lamp.
 
 ---
 
 ## Design System
 
-### Màu sắc
+### Colors
 
-| Vai trò | Màu | Hex |
+| Role | Color | Hex |
 |---------|-----|-----|
-| Background chính | Navy rất tối | `#0F172A` |
-| Surface (card, bottom bar) | Navy tối hơn chút | `#1E293B` |
+| Main Background | Very dark Navy | `#0F172A` |
+| Surface (card, bottom bar) | Slightly darker Navy | `#1E293B` |
 | Accent / Primary | Indigo | `#4F46E5` |
-| Accent sáng (dark mode) | Indigo nhạt | `#818CF8` |
-| Text chính | Trắng | `#F8FAFC` |
-| Text phụ | Xám xanh | `#94A3B8` |
-| Text Caption | Xám sáng hơn (pass WCAG AA thoải mái hơn ở 11sp) | `#A0AEC0` |
-| Đường kẻ / divider | `#2D3748` | |
-| **Khó** (rating) | Đỏ | `#EF4444` |
-| **OK** (rating) | Vàng cam | `#F59E0B` |
-| **Dễ** (rating) | Xanh lá | `#22C55E` |
-| Streak / fire | Cam | `#F97316` |
+| Light Accent (dark mode) | Light Indigo | `#818CF8` |
+| Main Text | White | `#F8FAFC` |
+| Secondary Text | Blue-gray | `#94A3B8` |
+| Caption Text | Brighter gray (comfortably passes WCAG AA at 11sp) | `#A0AEC0` |
+| Lines / dividers | `#2D3748` | |
+| **Hard** (rating) | Red | `#EF4444` |
+| **OK** (rating) | Yellow-orange | `#F59E0B` |
+| **Easy** (rating) | Green | `#22C55E` |
+| Streak / fire | Orange | `#F97316` |
 
-> Light mode: background `#F8FAFC`, surface `#FFFFFF`, text `#0F172A`, accent giữ nguyên Indigo `#4F46E5`.
+> Light mode: background `#F8FAFC`, surface `#FFFFFF`, text `#0F172A`, accent remains Indigo `#4F46E5`.
 
 ### Typography — Inter
 
-| Style | Size | Weight | Dùng cho |
+| Style | Size | Weight | Usage |
 |-------|------|--------|----------|
-| Display | 32sp | 700 Bold | Từ vựng mặt trước flashcard |
-| Headline | 20sp | 600 SemiBold | Tên deck, title màn hình |
-| Title | 16sp | 600 SemiBold | Tên card trong list |
-| Body | 14sp | 400 Regular | Mô tả, subtitle |
-| Label | 12sp | 500 Medium | Tag ngôn ngữ, badge |
-| Caption | 11sp | 400 Regular | Metadata nhỏ (số card) — dùng `#A0AEC0` thay vì `#94A3B8` để đảm bảo contrast ở cỡ chữ nhỏ |
+| Display | 32sp | 700 Bold | Vocabulary on the front of the flashcard |
+| Headline | 20sp | 600 SemiBold | Deck name, screen title |
+| Title | 16sp | 600 SemiBold | Card name in the list |
+| Body | 14sp | 400 Regular | Descriptions, subtitles |
+| Label | 12sp | 500 Medium | Language tags, badges |
+| Caption | 11sp | 400 Regular | Small metadata (card count) — uses `#A0AEC0` instead of `#94A3B8` to ensure contrast at small font sizes |
 
-### Hình dạng & khoảng cách
+### Shapes & Spacing
 
-- Border radius: **16dp** cho card deck, **12dp** cho button, **8dp** cho list item
-- Padding ngang màn hình: **20dp**
-- Khoảng cách giữa các item: **12dp**
-- Card elevation: shadow nhẹ `0 2px 8px rgba(0,0,0,0.3)`
+- Border radius: **16dp** for deck cards, **12dp** for buttons, **8dp** for list items
+- Horizontal screen padding: **20dp**
+- Item spacing: **12dp**
+- Card elevation: slight shadow `0 2px 8px rgba(0,0,0,0.3)`
 
 ### Micro-animations
 
-- **Flip card**: xoay 3D theo trục Y, duration 400ms, curve `easeInOut`
-- **Button tap**: scale nhẹ `0.95` trong 100ms
-- **Screen transition**: slide từ phải, duration 300ms
-- **Badge/score**: count-up animation khi Stats load
-- **Quiz answer**: flash xanh (đúng) hoặc đỏ (sai) trong 300ms, không chuyển màn hình ngay
+- **Flip card**: 3D Y-axis rotation, 400ms duration, `easeInOut` curve
+- **Button tap**: slight scale down to `0.95` over 100ms
+- **Screen transition**: slide from right, 300ms duration
+- **Badge/score**: count-up animation when Stats load
+- **Quiz answer**: flash green (correct) or red (incorrect) for 300ms, does not transition screens immediately
 
 ---
 
-## Màn hình 1 — Home (Danh sách Deck)
+## Screen 1 — Home (Deck List)
 
-**Layout**: Scaffold với TopAppBar + danh sách deck dạng list + FAB
+**Layout**: Scaffold with TopAppBar + list of decks + FAB
 
 **TopAppBar**:
-- Title: "ZenFlashCards" — Inter SemiBold 20sp, màu trắng
-- Bên phải: icon filter hoặc search (optional v2)
-- Background: trong suốt, không có đường kẻ
+- Title: "ZenFlashCards" — Inter SemiBold 20sp, white color
+- Right side: filter or search icon (optional v2)
+- Background: transparent, no dividing lines
 
-**Body** — danh sách các DeckCard:
-- Mỗi DeckCard là một `Card` với `borderRadius: 16dp`, background `#1E293B`
-- **Trái**: tên deck (Headline, trắng), bên dưới là "🇬🇧 English → 🇻🇳 Tiếng Việt" (Label, xám), và "39 cards" (Caption, xám)
-- **Phải**: badge tròn indigo, số **cards due today** ở giữa — chỉ hiện nếu > 0; nếu = 0 thì **hiện tick ✅ nhỏ màu xanh lá** (không ẩn badge — ẩn hẳn sẽ làm deck "đã học xong" trông y hệt deck chưa từng đụng tới, mất feedback tích cực)
-- Long-press deck → context menu: Sửa / Xóa
+**Body** — list of DeckCards:
+- Each DeckCard is a `Card` with `borderRadius: 16dp`, background `#1E293B`
+- **Left**: deck name (Headline, white), below is "🇬🇧 English → 🇻🇳 Vietnamese" (Label, gray), and "39 cards" (Caption, gray)
+- **Right**: indigo circular badge, number of **cards due today** in the middle — only displayed if > 0; if = 0, **display a small green tick ✅** (do not hide the badge — hiding it completely makes a "completed" deck look exactly like an untouched deck, losing positive feedback)
+- Long-press deck → context menu: Edit / Delete
 
-**Empty state** (chưa có deck nào):
-- Icon lớn 📚 hoặc minh hoạ đơn giản
-- Text: "Chưa có bộ thẻ nào\nBấm + để tạo bộ thẻ đầu tiên"
-- Màu xám, căn giữa
+**Empty state** (no decks yet):
+- Large 📚 icon or simple illustration
+- Text: "No decks available\nTap + to create your first deck"
+- Gray color, centered
 
-**FAB**: indigo tròn `+`, vị trí bottom-right, elevation thấp
+**FAB**: round indigo `+`, bottom-right position, low elevation
 
 **Bottom Navigation Bar**:
-- 3 tab: 🏠 Home / 📊 Stats / ⚙️ Settings
-- Icon active: indigo, filled
-- Icon inactive: xám
-- Không có label text (icon đủ rõ)
+- 3 tabs: 🏠 Home / 📊 Stats / ⚙️ Settings
+- Active icon: indigo, filled
+- Inactive icon: gray
+- No text label (icons are clear enough)
 
 ---
 
-## Màn hình 2 — Deck Detail
+## Screen 2 — Deck Detail
 
-**Layout**: Scaffold với TopAppBar cuộn ẩn + sticky action row + danh sách card + FAB
+**Layout**: Scaffold with hide-on-scroll TopAppBar + sticky action row + card list + FAB
 
 **TopAppBar**:
-- Nút back ←
-- Title: tên deck, Inter SemiBold
+- Back button ←
+- Title: deck name, Inter SemiBold
 - Subtitle: "English → Vietnamese · 39 cards"
-- 3 chấm menu: Sửa tên deck / Xoá deck
+- 3-dot menu: Edit deck name / Delete deck
 
-**Action Row** (sticky, không cuộn):
-- 3 button nằm ngang, cùng chiều cao:
-  - `Học ngay` — filled indigo, icon 📚
-  - `Quiz` — outlined indigo, icon 🎯
-  - `Import CSV` — text button, icon 📥, màu xám
-- Nếu 0 cards due today: button "Học ngay" disable với text "Đã ôn xong hôm nay ✓"
+**Action Row** (sticky, non-scrolling):
+- 3 horizontal buttons, equal height:
+  - `Study Now` — filled indigo, 📚 icon
+  - `Quiz` — outlined indigo, 🎯 icon
+  - `Import CSV` — text button, 📥 icon, gray color
+- If 0 cards due today: "Study Now" button is disabled with the text "Reviewed today ✓"
 
-**Danh sách Card** (cuộn):
-- Mỗi item: row với front (bold) — dấu `→` — back (xám)
-- Swipe phải → edit, swipe trái → delete (với confirm)
-- Tap → xem chi tiết card (optional)
-- Divider mỏng giữa các item
+**Card List** (scrollable):
+- Each item: row with front (bold) — `→` sign — back (gray)
+- Swipe right → edit, swipe left → delete (with confirmation)
+- Tap → view card details (optional)
+- Thin divider between items
 
-**FAB**: `+` để thêm card thủ công, indigo
-
----
-
-## Màn hình 3 — Study / Flashcard Flip
-
-**Layout**: Full screen, không có bottom nav. TopAppBar tối giản: nút X (thoát) bên trái, progress dạng text "3 / 12" bên phải.
-
-**Progress bar** mỏng (4dp) ngay dưới AppBar, màu indigo, fill theo tiến độ.
-
-**Vùng card** (chiếm 60% chiều cao màn hình):
-- Card dùng surface tối `#1E293B`, `borderRadius: 24dp`, shadow `0 4px 16px rgba(0,0,0,0.4)`
-- Text trên card màu trắng `#F8FAFC` — nhất quán với phần còn lại của app (không dùng card trắng để tránh phá vỡ tinh thần dark/calm)
-- Khi chưa lật: chỉ hiện **từ mặt trước** — font Display 32sp, căn giữa. Tag nhỏ "ENGLISH" phía trên từ, màu `#94A3B8`
-- Tap card → flip animation 3D → mặt sau hiện: **nghĩa** font Display 28sp + có thể thêm ví dụ câu nhỏ hơn bên dưới, màu `#CBD5E1`
-- Corner hint nhỏ "Tap để lật 👆" lần đầu tiên (sau đó ẩn)
-
-**Vùng đánh giá** (3 button luôn hiện, nhưng dim khi chưa lật):
-- 3 button pill nằm ngang, chiều rộng bằng nhau:
-  - `😅 Khó` — background `#EF4444` mờ, text đỏ
-  - `😊 OK` — background `#F59E0B` mờ, text vàng
-  - `😎 Dễ` — background `#22C55E` mờ, text xanh
-- Tap một trong 3 → card biến mất (swipe lên nhẹ), card tiếp theo xuất hiện
-- **Khi chưa lật card**: 3 button `opacity: 0.3`, `pointerEvents: none` — **mờ + disable, không ẩn hẳn** (ẩn sẽ làm layout nhảy giật khi card flip)
+**FAB**: `+` to manually add a card, indigo
 
 ---
 
-## Màn hình 4 — Quiz (Trắc nghiệm)
+## Screen 3 — Study / Flashcard Flip
 
-**Layout**: Không có bottom nav. AppBar: "Quiz", tiến độ "4/10" bên phải
+**Layout**: Full screen, no bottom nav. Minimalist TopAppBar: X (exit) button on the left, "3 / 12" progress text on the right.
 
-**Progress bar** indigo mỏng ngay dưới AppBar
+Thin (4dp) indigo **Progress bar** right below AppBar, fills according to progress.
 
-**Question card**: surface tối `#1E293B`, `borderRadius: 20dp` — nhất quán với DeckCard và flashcard (không dùng card trắng)
-- Từ cần đoán: Headline 24sp bold, màu trắng `#F8FAFC`, căn giữa
-- Tag nhỏ "Chọn nghĩa đúng" phía trên, màu `#94A3B8`
+**Card Area** (occupies 60% of screen height):
+- Card uses dark surface `#1E293B`, `borderRadius: 24dp`, shadow `0 4px 16px rgba(0,0,0,0.4)`
+- Text on card is white `#F8FAFC` — consistent with the rest of the app (do not use white cards to avoid breaking the dark/calm vibe)
+- Before flipping: only shows **front word** — 32sp Display font, centered. Small "ENGLISH" tag above the word, `#94A3B8` color
+- Tap card → 3D flip animation → back shows: 28sp Display **meaning** + optional smaller example sentence below, `#CBD5E1` color
+- Small corner hint "Tap to flip 👆" the first time (then hidden)
 
-**4 lựa chọn** — stack dọc, mỗi button:
-- `borderRadius: 12dp`, background `#1E293B`, border mỏng `#2D3748`
-- Text Body 16sp, căn trái, padding 16dp, màu trắng
-- Khi chọn **đúng**: background flash xanh `#22C55E` mờ, icon **✓** bên phải, text xanh
-- Khi chọn **sai**: button đó flash đỏ `#EF4444` mờ, icon **✗** bên phải, text đỏ — đồng thời đáp án đúng tự highlight xanh + icon ✓ (hỗ trợ người mù màu: icon ✓/✗ là tín hiệu phụ ngoài màu sắc, nhất quán với emoji 😅/😊/😎 ở Study screen)
-- Sau 1.2 giây → tự chuyển câu tiếp
-
----
-
-## Màn hình 5 — Session Result (Kết quả buổi học)
-
-**Layout**: Full screen, căn giữa nội dung
-
-**Score ring**: vòng tròn lớn (~200dp diameter)
-- Track mỏng màu `#1E293B`
-- Fill màu indigo, animate fill theo % đúng khi vào màn hình
-- Giữa ring: text `8/10` — số lớn Bold + /10 nhỏ hơn
-
-**Message động lực** dựa vào %:
-- ≥ 80%: "Tuyệt vời! 🎉"
-- 50–79%: "Khá tốt! 💪"
-- < 50%: "Cố lên nhé! 🌱"
-
-**Stats row**: `✅ Đúng: 8` xanh — `❌ Sai: 2` đỏ (nằm ngang cách nhau)
-
-**2 button** nằm ngang:
-- `Học lại` — outlined, indigo — reset queue với các card đã sai
-- `Xong` — filled indigo — về Deck Detail
+**Rating Area** (3 buttons always visible, but dimmed before flipping):
+- 3 horizontal pill buttons, equal width:
+  - `😅 Hard` — dim `#EF4444` background, red text
+  - `😊 OK` — dim `#F59E0B` background, yellow text
+  - `😎 Easy` — dim `#22C55E` background, green text
+- Tap any of the 3 → card disappears (slight swipe up), next card appears
+- **Before flipping card**: 3 buttons have `opacity: 0.3`, `pointerEvents: none` — **dimmed + disabled, not completely hidden** (hiding them causes the layout to jump when the card flips)
 
 ---
 
-## Màn hình 6 — Stats (Thống kê)
+## Screen 4 — Quiz (Multiple Choice)
 
-**Layout**: Scaffold + ScrollView, có bottom nav
+**Layout**: No bottom nav. AppBar: "Quiz", "4/10" progress on the right
 
-**Header**: "Thống kê" title
+Thin indigo **Progress bar** right below AppBar
 
-**Streak Card** (card đầu tiên, nổi bật):
-- Background gradient **rất nhẹ**: 2 sắc độ indigo gần nhau (`#3730A3` → `#4F46E5`), không dùng gradient tương phản cao — đây là điểm nhấn duy nhất trong app, chấp nhận được nhưng phải giữ subtle để không phá vỡ tinh thần flat/minimal
-- Icon 🔥 lớn + số ngày "7 ngày liên tiếp"
-- Subtext: "Học hôm nay để giữ streak!"
+**Question card**: dark surface `#1E293B`, `borderRadius: 20dp` — consistent with DeckCard and flashcards (do not use white cards)
+- Word to guess: 24sp bold Headline, white color `#F8FAFC`, centered
+- Small "Select the correct meaning" tag above, `#94A3B8` color
 
-**Bar Chart** (7 ngày gần nhất):
-- Title: "Cards học trong 7 ngày"
-- Bar màu indigo, height tỉ lệ với số card
-- X-axis: T2 T3 T4 T5 T6 T7 CN (hoặc ngày tháng ngắn)
-- Bar hôm nay: sáng hơn / có viền
+**4 choices** — vertical stack, each button:
+- `borderRadius: 12dp`, background `#1E293B`, thin border `#2D3748`
+- 16sp Body text, left-aligned, 16dp padding, white color
+- When **correct**: dim green `#22C55E` background flash, **✓** icon on the right, green text
+- When **incorrect**: that button flashes dim red `#EF4444`, **✗** icon on the right, red text — simultaneously the correct answer auto-highlights green + ✓ icon (color blindness support: ✓/✗ icons serve as secondary signals alongside color, consistent with the 😅/😊/😎 emojis on the Study screen)
+- Auto-transitions to the next question after 1.2 seconds
 
-**Donut Chart** (Phân bố chất lượng):
-- Title: "Phân bố đánh giá"
-- 3 segment: Dễ (xanh) / OK (vàng) / Khó (đỏ)
-- Legend bên dưới: màu + % + label
-- Tổng reviews lớn ở giữa donut
+---
+
+## Screen 5 — Session Result
+
+**Layout**: Full screen, centered content
+
+**Score ring**: large circle (~200dp diameter)
+- Thin track `#1E293B` color
+- Indigo fill, animates to fill according to correct % upon entering the screen
+- Inside ring: `8/10` text — large Bold number + smaller /10
+
+**Motivational message** based on %:
+- ≥ 80%: "Excellent! 🎉"
+- 50–79%: "Good job! 💪"
+- < 50%: "Keep it up! 🌱"
+
+**Stats row**: `✅ Correct: 8` green — `❌ Incorrect: 2` red (horizontally spaced)
+
+**2 buttons** aligned horizontally:
+- `Review Again` — outlined, indigo — resets queue with incorrectly answered cards
+- `Done` — filled indigo — returns to Deck Detail
+
+---
+
+## Screen 6 — Stats
+
+**Layout**: Scaffold + ScrollView, with bottom nav
+
+**Header**: "Stats" title
+
+**Streak Card** (first card, prominent):
+- **Very subtle** gradient background: 2 close shades of indigo (`#3730A3` → `#4F46E5`), avoids high-contrast gradients — this is the only highlight in the app, acceptable but must be kept subtle so as not to break the flat/minimal vibe
+- Large 🔥 icon + number of days "7 day streak"
+- Subtext: "Study today to keep your streak!"
+
+**Bar Chart** (last 7 days):
+- Title: "Cards studied in 7 days"
+- Indigo bars, height proportional to the number of cards
+- X-axis: Mon Tue Wed Thu Fri Sat Sun (or short dates)
+- Today's bar: brighter / with border
+
+**Donut Chart** (Rating distribution):
+- Title: "Rating distribution"
+- 3 segments: Easy (green) / OK (yellow) / Hard (red)
+- Legend below: color + % + label
+- Total reviews displayed large in the center of the donut
 
 **Summary Row**:
-- 2 tile nằm ngang: "Tổng deck: 5" | "Tổng card: 180"
+- 2 horizontal tiles: "Total decks: 5" | "Total cards: 180"
 
 ---
 
-## Màn hình 7 — Settings
+## Screen 7 — Settings
 
-**Layout**: List settings đơn giản, không có bottom padding phức tạp
+**Layout**: Simple settings list, no complex bottom padding
 
 **Sections**:
 
-**Giao diện**:
-- `Chủ đề` — trailing: chip chọn ☀️ Sáng / 🌙 Tối / 🤖 Hệ thống (segment control nhỏ)
+**Appearance**:
+- `Theme` — trailing: chip selector for ☀️ Light / 🌙 Dark / 🤖 System (small segment control)
 
-**Thông tin**:
-- `Phiên bản` — trailing: "1.0.0"
-- `Góp ý / Báo lỗi` — trailing: icon mũi tên →
-- `About ZenFlashCards` — trailing: icon mũi tên →
+**Information**:
+- `Version` — trailing: "1.0.0"
+- `Feedback / Report a bug` — trailing: arrow icon →
+- `About ZenFlashCards` — trailing: arrow icon →
 
-> Section header: chữ nhỏ Label xám, uppercase, không có background khác biệt
+> Section header: small gray Label text, uppercase, no distinct background
 
 ---
 
 ## Empty States & Edge Cases
 
-| Tình huống | UI |
+| Scenario | UI |
 |-----------|-----|
-| Deck không có card | Illustration + "Chưa có thẻ nào. Thêm thủ công hoặc import CSV" |
-| Không có card due today | Deck Detail: "🎉 Bạn đã ôn xong hôm nay!" + button "Xem lại tất cả" |
-| Quiz cần ít nhất 4 card | Alert: "Cần ít nhất 4 thẻ để làm quiz" |
-| Import CSV lỗi | Snackbar đỏ: "File không đúng định dạng — cần 2 cột front, back" |
-| File picker bytes null | (xử lý nội bộ, user không thấy — đọc qua bytes fallback) |
+| Deck has no cards | Illustration + "No cards yet. Add manually or import CSV" |
+| No cards due today | Deck Detail: "🎉 You've finished reviewing for today!" + "Review all" button |
+| Quiz needs at least 4 cards | Alert: "Need at least 4 cards to start a quiz" |
+| CSV import error | Red snackbar: "Invalid file format — needs 2 columns for front, back" |
+| File picker bytes null | (internal handling, user doesn't see — fallback to reading bytes) |
