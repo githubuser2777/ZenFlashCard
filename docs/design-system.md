@@ -1,16 +1,16 @@
 # 🎨 Design System — ZenFlashCards
 
-> Tài liệu mô tả đầy đủ hệ thống thiết kế (Design Tokens, Color, Typography, Components, Accessibility) của ứng dụng ZenFlashCards.
+> Full documentation of the design system (Design Tokens, Colors, Typography, Components, Accessibility) for the ZenFlashCards application.
 
 ---
 
 ## 1. Design Vision
 
-**Zen** — tối giản, yên tĩnh, không gây phân tâm.
+**Zen** — minimalist, quiet, and distraction-free.
 
-> _"Người dùng mở app để học, không phải để thưởng thức animation. Mọi thứ phải nhanh, rõ, dễ chạm."_
+> _"Users open the app to study, not to enjoy animations. Everything must be fast, clear, and easy to interact with."_
 
-Cảm giác tổng thể: **dark, calm, focused** — như ngồi trong phòng tối với một cuốn sách và ánh đèn nhỏ.
+Overall feel: **dark, calm, focused** — like sitting in a dark room with a book and a small reading light.
 
 ---
 
@@ -37,41 +37,41 @@ Cảm giác tổng thể: **dark, calm, focused** — như ngồi trong phòng t
 
 ### 2.2. Light Mode
 
-| Token | Hex | Ghi chú |
-|-------|-----|---------|
-| Background | `#F8FAFC` | Trắng xám nhẹ |
-| Surface | `#FFFFFF` | Trắng tinh |
-| Text Primary | `#0F172A` | Navy tối (đảo ngược) |
-| Primary Accent | `#4F46E5` | Giữ nguyên Indigo |
+| Token | Hex | Notes |
+|-------|-----|-------|
+| Background | `#F8FAFC` | Light grayish white |
+| Surface | `#FFFFFF` | Pure white |
+| Text Primary | `#0F172A` | Dark navy (inverted) |
+| Primary Accent | `#4F46E5` | Keep Indigo unchanged |
 
 ### 2.3. Semantic Colors
 
-| Ngữ cảnh | Màu | Hex | Dùng cho |
-|----------|-----|-----|----------|
-| Đánh giá **Khó** | 🔴 Đỏ | `#EF4444` | Button "😅 Khó", Quiz sai |
-| Đánh giá **OK** | 🟡 Vàng/Cam | `#F59E0B` | Button "😊 OK" |
-| Đánh giá **Dễ** | 🟢 Xanh lá | `#22C55E` | Button "😎 Dễ", Quiz đúng, tick ✅ |
-| **Streak** | 🟠 Cam | `#F97316` | Icon lửa 🔥 |
+| Context | Color | Hex | Used for |
+|---------|-------|-----|----------|
+| Rating **Hard** | 🔴 Red | `#EF4444` | "😅 Hard" button, Incorrect Quiz |
+| Rating **OK** | 🟡 Yellow/Orange | `#F59E0B` | "😊 OK" button |
+| Rating **Easy** | 🟢 Green | `#22C55E` | "😎 Easy" button, Correct Quiz, Tick ✅ |
+| **Streak** | 🟠 Orange | `#F97316` | Fire icon 🔥 |
 | **Gradient** (Stats) | Indigo | `#3730A3` → `#4F46E5` | Streak card (subtle) |
 
 ---
 
 ## 3. Typography — Inter
 
-| Style | Size | Weight | Line Height | Color | Dùng cho |
+| Style | Size | Weight | Line Height | Color | Used for |
 |-------|:----:|:------:|:-----------:|-------|----------|
-| Display | 32sp | 700 Bold | 1.2 | `#F8FAFC` | Từ vựng mặt trước flashcard |
-| Headline | 20sp | 600 Semi | 1.3 | `#F8FAFC` | Tên deck, title màn hình |
-| Title | 16sp | 600 Semi | 1.3 | `#F8FAFC` | Tên card trong danh sách |
-| Body | 14sp | 400 Reg | 1.4 | `#94A3B8` | Mô tả, subtitle |
-| Label | 12sp | 500 Med | 1.3 | `#94A3B8` | Tag ngôn ngữ, badge |
-| Caption | 11sp | 400 Reg | 1.3 | `#A0AEC0` | Metadata nhỏ (số card) |
+| Display | 32sp | 700 Bold | 1.2 | `#F8FAFC` | Vocabulary on flashcard front |
+| Headline | 20sp | 600 Semi | 1.3 | `#F8FAFC` | Deck name, screen title |
+| Title | 16sp | 600 Semi | 1.3 | `#F8FAFC` | Card name in list |
+| Body | 14sp | 400 Reg | 1.4 | `#94A3B8` | Description, subtitle |
+| Label | 12sp | 500 Med | 1.3 | `#94A3B8` | Language tag, badge |
+| Caption | 11sp | 400 Reg | 1.3 | `#A0AEC0` | Small metadata (card count) |
 
-> **Lưu ý WCAG**: Caption dùng `#A0AEC0` thay vì `#94A3B8` để đạt contrast ratio ≥ 4.5:1 trên nền `#1E293B` ở cỡ chữ nhỏ 11sp.
+> **WCAG Note**: Caption uses `#A0AEC0` instead of `#94A3B8` to meet contrast ratio ≥ 4.5:1 on a `#1E293B` background for small text size 11sp.
 
 ### Font Loading
 
-Sử dụng `google_fonts` package — tải Inter qua CDN, không cần bundle `.ttf` vào APK:
+Use the `google_fonts` package to load Inter via CDN, avoiding bundling `.ttf` files into the APK:
 
 ```dart
 textTheme: GoogleFonts.interTextTheme()
@@ -83,22 +83,22 @@ textTheme: GoogleFonts.interTextTheme()
 
 ### 4.1. Border Radius
 
-| Element | Radius | Ghi chú |
-|---------|:------:|---------|
-| Flashcard (Study) | 24dp | Nhấn mạnh, focus chính |
-| DeckCard (Home) | 16dp | Card tiêu chuẩn |
-| Button / Quiz Choice | 12dp | Tương tác chính |
+| Element | Radius | Notes |
+|---------|:------:|-------|
+| Flashcard (Study) | 24dp | Emphasis, primary focus |
+| DeckCard (Home) | 16dp | Standard card |
+| Button / Quiz Choice | 12dp | Primary interactions |
 | List Item | 8dp | Compact |
 | Rating Pill Button | 26dp | Full round pill |
 
 ### 4.2. Spacing
 
-| Token | Giá trị | Dùng cho |
-|-------|:-------:|----------|
-| Screen padding (horizontal) | 20dp | Padding ngang tất cả màn hình |
-| Item spacing | 12dp | Khoảng cách giữa các item |
-| Card padding (internal) | 18dp | Padding bên trong card |
-| Touch target minimum | 48dp × 48dp | Tất cả nút tương tác |
+| Token | Value | Used for |
+|-------|:-----:|----------|
+| Screen padding (horizontal) | 20dp | Horizontal padding for all screens |
+| Item spacing | 12dp | Spacing between items |
+| Card padding (internal) | 18dp | Inner padding for cards |
+| Touch target minimum | 48dp × 48dp | All interactive buttons |
 
 ### 4.3. Elevation & Shadows
 
@@ -117,27 +117,27 @@ textTheme: GoogleFonts.interTextTheme()
 
 ```
 ┌──────────────────────────────────────┐
-│  Tiếng Anh Thông Dụng               │
-│  🇬🇧 English → 🇻🇳 Tiếng Việt    [12]│
+│  Common English                     │
+│  🇬🇧 English → 🇻🇳 Vietnamese    [12]│
 │  39 cards                            │
 └──────────────────────────────────────┘
- Surface #1E293B │ radius 16dp │ shadow nhẹ
- Badge: Indigo circle (due count) hoặc ✅ (done)
- Long-press → context menu: Sửa / Xóa
+ Surface #1E293B │ radius 16dp │ subtle shadow
+ Badge: Indigo circle (due count) or ✅ (done)
+ Long-press → context menu: Edit / Delete
 ```
 
 ### 5.2. FlipCard3D
 
 ```
 ┌──────────────────────┐      ┌──────────────────────┐
-│     ENGLISH          │      │     TIẾNG VIỆT       │
+│     ENGLISH          │      │     VIETNAMESE       │
 │                      │      │                      │
 │    Serendipity       │ ──→  │  Sự tình cờ may mắn  │
 │                      │ 400ms│                      │
-│    Tap để lật 👆     │      │  "Finding this was   │
+│    Tap to flip 👆    │      │  "Finding this was   │
 └──────────────────────┘      │   pure serendipity"  │
                               └──────────────────────┘
- Surface #1E293B │ radius 24dp │ shadow nổi
+ Surface #1E293B │ radius 24dp │ prominent shadow
  Animation: rotateY 400ms easeInOut
  Perspective: Matrix4 setEntry(3,2,0.001)
 ```
@@ -146,28 +146,28 @@ textTheme: GoogleFonts.interTextTheme()
 
 ```
 ┌──────────┐  ┌──────────┐  ┌──────────┐
-│  😅 Khó  │  │  😊 OK   │  │  😎 Dễ   │
+│  😅 Hard │  │  😊 OK   │  │  😎 Easy │
 └──────────┘  └──────────┘  └──────────┘
   #EF4444       #F59E0B       #22C55E
   (15% opacity  (15% opacity  (15% opacity
    background)   background)   background)
 
-Khi chưa lật card: opacity 0.3, pointerEvents none
-Khi đã lật card:   opacity 1.0, enabled
-→ Không ẩn/hiện để tránh layout jump
+When card not flipped: opacity 0.3, pointerEvents none
+When card flipped:     opacity 1.0, enabled
+→ Do not hide/show to prevent layout jump
 ```
 
 ### 5.4. Quiz Option Button
 
 ```
 ┌────────────────────────────────────────┐
-│  Khả năng phục hồi, kiên cường     ✓  │  ← Đúng: flash xanh #22C55E
+│  Resilience                        ✓  │  ← Correct: green flash #22C55E
 └────────────────────────────────────────┘
 ┌────────────────────────────────────────┐
-│  Sự tình cờ may mắn                ✗  │  ← Sai: flash đỏ #EF4444
+│  Serendipity                       ✗  │  ← Incorrect: red flash #EF4444
 └────────────────────────────────────────┘
  Border #2D3748 │ radius 12dp │ surface #1E293B
- Dual signal: Color + Icon (✓/✗) cho người mù màu
+ Dual signal: Color + Icon (✓/✗) for color-blind users
 ```
 
 ### 5.5. Bottom Navigation Bar
@@ -179,7 +179,7 @@ Khi đã lật card:   opacity 1.0, enabled
 │    #818CF8     #94A3B8     #94A3B8     │
 └────────────────────────────────────────┘
  Background #1E293B │ height 64dp
- Không có text label │ Icon-only minimal
+ No text label │ Icon-only minimal
  Active: filled icon + subtle indigo bg (12% opacity)
 ```
 
@@ -187,15 +187,15 @@ Khi đã lật card:   opacity 1.0, enabled
 
 ## 6. Micro-Animations
 
-| Animation | Duration | Curve | Mô tả |
-|-----------|:--------:|:-----:|-------|
-| Card flip 3D | 400ms | `easeInOut` | Xoay trục Y với perspective |
+| Animation | Duration | Curve | Description |
+|-----------|:--------:|:-----:|-------------|
+| Card flip 3D | 400ms | `easeInOut` | Y-axis rotation with perspective |
 | Button tap | 100ms | linear | Scale down 0.95 → 1.0 |
-| Screen transition | 300ms | `easeOut` | Slide từ phải vào |
-| Score ring fill | 800ms | `easeOut` | Conic gradient animate từ 0% → actual% |
-| Badge count-up | 600ms | `easeOut` | Số nhảy từ 0 lên giá trị thực |
-| Quiz flash | 300ms | linear | Background flash xanh/đỏ rồi fade |
-| Card dismiss | 200ms | `easeIn` | Swipe lên nhẹ khi chọn rating |
+| Screen transition | 300ms | `easeOut` | Slide in from right |
+| Score ring fill | 800ms | `easeOut` | Conic gradient animate from 0% → actual% |
+| Badge count-up | 600ms | `easeOut` | Number jumps from 0 to actual value |
+| Quiz flash | 300ms | linear | Background green/red flash then fade |
+| Card dismiss | 200ms | `easeIn` | Slight upward swipe when rating selected |
 
 ---
 
@@ -203,23 +203,23 @@ Khi đã lật card:   opacity 1.0, enabled
 
 ### 7.1. Contrast Ratio Audit
 
-| Text | Background | Ratio | Kết quả |
-|------|-----------|:-----:|:-------:|
+| Text | Background | Ratio | Result |
+|------|------------|:-----:|:------:|
 | `#F8FAFC` (primary) | `#1E293B` (surface) | **13.8:1** | ✅ AAA |
 | `#F8FAFC` (primary) | `#0F172A` (main bg) | **15.4:1** | ✅ AAA |
 | `#A0AEC0` (caption) | `#1E293B` (surface) | **5.2:1** | ✅ AA |
 | `#94A3B8` (secondary) | `#1E293B` (surface) | **4.6:1** | ✅ AA |
 | `#4F46E5` (primary) | `#0F172A` (main bg) | **4.8:1** | ✅ AA |
 
-### 7.2. Hỗ Trợ Người Mù Màu
+### 7.2. Color Blindness Support
 
-| Màn hình | Giải pháp |
-|----------|-----------|
-| Quiz | Không chỉ dùng xanh/đỏ — luôn kèm icon **✓** (đúng) và **✗** (sai) |
-| Study rating | Emoji trực quan 😅/😊/😎 + text label rõ ràng bên cạnh màu sắc |
-| Home badge | Tick ✅ khi hoàn tất (không ẩn hẳn badge → tránh mất feedback tích cực) |
+| Screen | Solution |
+|--------|----------|
+| Quiz | Do not rely only on green/red — always include icons **✓** (correct) and **✗** (incorrect) |
+| Study rating | Visual emojis 😅/😊/😎 + clear text labels alongside colors |
+| Home badge | Tick ✅ when completed (do not completely hide badge → prevents loss of positive feedback) |
 
 ### 7.3. Touch Target
 
-- Tất cả nút bấm, icon, tab nav: tối thiểu **48dp × 48dp**
-- Không có hit area nhỏ hơn 44dp trong toàn bộ app
+- All buttons, icons, and tab navs: minimum **48dp × 48dp**
+- No hit area smaller than 44dp throughout the entire app

@@ -1,32 +1,32 @@
 # 📱 ZenFlashCards — Flutter App
 
-## Mô tả dự án
+## Project Description
 
-Xây dựng app Android **ZenFlashCards** — học từ vựng theo phương pháp Flashcard, dùng Flutter (Dart), lưu dữ liệu offline hoàn toàn bằng SQLite (thông qua `sqflite`). App hỗ trợ nhiều ngôn ngữ, thuật toán Spaced Repetition (SM-2), quiz, import CSV, thống kê, dark mode.
+Build the **ZenFlashCards** Android app — a vocabulary learning application using the Flashcard method, built with Flutter (Dart), and storing data entirely offline using SQLite (via `sqflite`). The app supports multiple languages, the Spaced Repetition algorithm (SM-2), quizzes, CSV imports, statistics, and dark mode.
 
 ---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Tên app**: **"ZenFlashCards"** ✅ (đã xác nhận)
+> **App Name**: **"ZenFlashCards"** ✅ (Confirmed)
 
 > [!IMPORTANT]
-> **Package name**: `com.example.zenflashcards` — nên đổi thành tên thật của bạn trước khi publish lên Play Store.
+> **Package name**: `com.example.zenflashcards` — should be changed to your real identifier before publishing on the Play Store.
 
 > [!IMPORTANT]
-> **Bảng `review_history`**: Đã thêm vào schema để lưu từng lần review một card kèm quality. Điều này cho phép: pie chart breakdown theo Khó/OK/Dễ, và sau này dễ làm heatmap kiểu Anki. Trade-off: ghi thêm 1 row mỗi lần lật card — hoàn toàn chấp nhận được với SQLite offline.
+> **`review_history` table**: Added to the schema to record each time a card is reviewed along with its quality. This allows for: pie chart breakdowns by Hard/OK/Easy, and makes it easier to create an Anki-style heatmap in the future. Trade-off: writes 1 additional row per card flip — which is completely acceptable with offline SQLite.
 
 ---
 
 ## Open Questions
 
 > [!IMPORTANT]
-> Bạn đã bỏ chọn **Text-to-Speech** — tôi sẽ bỏ qua, nhưng để lại comment `// TODO: TTS hook` tại vị trí tích hợp sau này.
+> You deselected **Text-to-Speech** — I will skip it, but I will leave a `// TODO: TTS hook` comment at the integration points for future use.
 
 ---
 
-## Kiến trúc tổng quan
+## Architecture Overview
 
 ```
 lib/
@@ -37,7 +37,7 @@ lib/
 │   │   ├── database_helper.dart   # SQLite setup, migrations, indexes
 │   │   └── dao/
 │   │       ├── deck_dao.dart
-│   │       ├── card_dao.dart          # Gồm query cards_due_today
+│   │       ├── card_dao.dart          # Includes query cards_due_today
 │   │       ├── study_log_dao.dart
 │   │       └── review_history_dao.dart
 │   ├── models/
@@ -86,7 +86,7 @@ lib/
 
 ## Proposed Changes
 
-### 1. Khởi tạo project Flutter
+### 1. Initialize Flutter Project
 
 #### [NEW] Project scaffold
 
@@ -94,7 +94,7 @@ lib/
 flutter create --org com.example --project-name zenflashcards zenflashcards
 ```
 
-Thư mục gốc: `zenflashcards/`.
+Root directory: `zenflashcards/`.
 
 ---
 
@@ -114,7 +114,7 @@ dependencies:
   # State management
   provider: ^6.1.2
 
-  # File import (dùng SAF trên Android 13+ — không cần permission storage)
+  # File import (uses SAF on Android 13+ — no storage permission needed)
   file_picker: ^8.1.2
 
   # CSV parsing
@@ -132,7 +132,7 @@ dependencies:
   # Intl (date formatting)
   intl: ^0.19.0
 
-  # Font Inter qua Google Fonts — không cần bundle .ttf thủ công
+  # Inter Font via Google Fonts — no need to manually bundle .ttf
   google_fonts: ^6.2.1
 
 dev_dependencies:
@@ -147,10 +147,10 @@ dev_dependencies:
 
 #### [NEW] `database_helper.dart`
 
-Khởi tạo SQLite, **4 bảng**, **indexes** cho các cột query thường xuyên:
+Initializes SQLite, **4 tables**, and **indexes** for frequently queried columns:
 
 ```sql
--- Deck: bộ thẻ (bỏ card_count — tính COUNT(*) khi cần, tránh lệch dữ liệu)
+-- Deck: card set (removed card_count — calculate COUNT(*) dynamically when needed, preventing data mismatch)
 CREATE TABLE decks (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -170,48 +170,48 @@ CREATE TABLE flashcards (
   repetition INTEGER DEFAULT 0,
   easiness REAL DEFAULT 2.5,
   interval INTEGER DEFAULT 1,
-  next_review INTEGER NOT NULL,   -- unix ms; khởi tạo = now() → hiện ngay lần đầu
+  next_review INTEGER NOT NULL,   -- unix ms; initialized = now() → shows immediately the first time
   created_at INTEGER NOT NULL,
   FOREIGN KEY (deck_id) REFERENCES decks(id) ON DELETE CASCADE
 );
 
--- Index cho query cards theo deck và query "due today"
+-- Indexes for querying cards by deck and "due today" queries
 CREATE INDEX idx_flashcards_deck ON flashcards(deck_id);
 CREATE INDEX idx_flashcards_next_review ON flashcards(next_review);
 
--- Study log: tổng hợp theo buổi học
+-- Study log: aggregates per study session
 CREATE TABLE study_logs (
   id TEXT PRIMARY KEY,
   deck_id TEXT NOT NULL,
   cards_studied INTEGER NOT NULL,
   correct INTEGER NOT NULL,
-  studied_at INTEGER NOT NULL     -- unix ms, date portion dùng cho bar chart / streak
+  studied_at INTEGER NOT NULL     -- unix ms, date portion used for bar chart / streak
 );
 
--- Index cho streak và bar chart 7 ngày (đều filter theo studied_at)
+-- Index for streaks and 7-day bar chart (both filter by studied_at)
 CREATE INDEX idx_study_logs_date ON study_logs(studied_at);
 
--- Review history: log từng lần review 1 card kèm quality
--- Dùng cho: pie chart Khó/OK/Dễ, heatmap kiểu Anki sau này
+-- Review history: logs every review of a single card with its quality
+-- Used for: Hard/OK/Easy pie chart, future Anki-style heatmaps
 CREATE TABLE review_history (
   id TEXT PRIMARY KEY,
   card_id TEXT NOT NULL,
   deck_id TEXT NOT NULL,
-  quality INTEGER NOT NULL,       -- 0=Khó, 3=OK, 5=Dễ (thang SM-2)
+  quality INTEGER NOT NULL,       -- 0=Hard, 3=OK, 5=Easy (SM-2 scale)
   reviewed_at INTEGER NOT NULL,
   FOREIGN KEY (card_id) REFERENCES flashcards(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_review_history_card ON review_history(card_id);
 CREATE INDEX idx_review_history_deck ON review_history(deck_id);
--- NOTE: index trên reviewed_at defer sang v2 — v1 pie chart chỉ SELECT theo deck_id,
--- chưa cần filter khoảng ngày. Thêm khi làm heatmap / date-range stats.
+-- NOTE: index on reviewed_at is deferred to v2 — in v1 pie chart only SELECTs by deck_id,
+-- no need to filter by date range yet. Add when building heatmap / date-range stats.
 ```
 
 #### [NEW] `card_dao.dart` — Query cards due today
 
 ```dart
-/// Lấy tất cả card trong deck cần ôn hôm nay (next_review <= now)
+/// Fetches all cards in a deck that need to be reviewed today (next_review <= now)
 Future<List<Flashcard>> getCardsDueToday(String deckId) async {
   final db = await _db;
   final now = DateTime.now().millisecondsSinceEpoch;
@@ -224,7 +224,7 @@ Future<List<Flashcard>> getCardsDueToday(String deckId) async {
   return rows.map(Flashcard.fromMap).toList();
 }
 
-/// Tổng số card due today across ALL decks — dùng cho Home badge
+/// Total cards due today across ALL decks — used for the Home badge
 Future<int> getTotalCardsDueToday() async {
   final db = await _db;
   final now = DateTime.now().millisecondsSinceEpoch;
@@ -235,7 +235,7 @@ Future<int> getTotalCardsDueToday() async {
   return Sqflite.firstIntValue(result) ?? 0;
 }
 
-/// Đếm số card trong deck (thay thế card_count denormalized)
+/// Counts the number of cards in a deck (replaces denormalized card_count)
 Future<int> getCardCount(String deckId) async {
   final db = await _db;
   final result = await db.rawQuery(
@@ -246,26 +246,26 @@ Future<int> getCardCount(String deckId) async {
 }
 ```
 
-**Khởi tạo `next_review` cho card mới:**
+**Initializing `next_review` for new cards:**
 
 ```dart
-// Trong card_dao.dart — insertCard()
+// In card_dao.dart — insertCard()
 final now = DateTime.now().millisecondsSinceEpoch;
 final card = Flashcard(
   id: const Uuid().v4(),
   deckId: deckId,
   front: front,
   back: back,
-  nextReview: now,  // ← next_review = now → hiện ngay trong lần ôn đầu tiên
+  nextReview: now,  // ← next_review = now → shows up immediately in the first review session
   createdAt: now,
 );
 ```
 
-#### [NEW] `sm2.dart` — Thuật toán SM-2
+#### [NEW] `sm2.dart` — SM-2 Algorithm
 
 ```dart
 /// SM-2 Spaced Repetition Algorithm
-/// quality: 0=Blackout/Khó, 3=OK, 5=Perfect/Dễ
+/// quality: 0=Blackout/Hard, 3=OK, 5=Perfect/Easy
 class SM2Result {
   final int repetition;
   final double easiness;
@@ -279,10 +279,10 @@ SM2Result calculateNextReview({
   required int intervalDays,
   required int quality, // 0–5
 }) {
-  // Nếu quality < 3: reset về đầu
+  // If quality < 3: reset to beginning
   int newRep = quality < 3 ? 0 : repetition + 1;
 
-  // Tính interval mới
+  // Calculate new interval
   int newInterval;
   if (newRep <= 1) {
     newInterval = 1;
@@ -292,7 +292,7 @@ SM2Result calculateNextReview({
     newInterval = (intervalDays * easiness).round();
   }
 
-  // Cập nhật easiness factor
+  // Update easiness factor
   double newEasiness = easiness + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
   if (newEasiness < 1.3) newEasiness = 1.3; // minimum EF
 
@@ -315,75 +315,75 @@ SM2Result calculateNextReview({
 
 #### [NEW] Home Screen
 
-- Grid/List các Deck đã tạo
-- FAB để tạo Deck mới
-- **Badge** tổng số card cần ôn hôm nay (query `getTotalCardsDueToday()`)
-- Số card trong deck hiển thị bằng `getCardCount()` — không dùng `card_count` cột nữa
+- Grid/List of created Decks
+- FAB to create a new Deck
+- **Badge** for the total number of cards due today (queries `getTotalCardsDueToday()`)
+- Card count in deck displayed using `getCardCount()` — no longer using a `card_count` column
 
 #### [NEW] Deck Detail Screen
 
-- List các card trong deck
-- Nút "Học ngay" → Study Screen (chỉ load cards due today)
-- Nút "Quiz" → Quiz Screen
-- Nút "Import CSV" → file picker (SAF, không cần declare permission)
-- Nút "Thêm card" → Card Form
+- List of cards in the deck
+- "Study Now" button → Study Screen (loads only cards due today)
+- "Quiz" button → Quiz Screen
+- "Import CSV" button → file picker (SAF, no permissions to declare)
+- "Add card" button → Card Form
 
-#### [NEW] Card Form — Soft warning khi trùng lặp
+#### [NEW] Card Form — Soft warning on duplicates
 
-Không block user (người dùng có thể cố tình thêm 2 card giống nhau), nhưng hiện warning nhẹ:
+Does not block the user (users might intentionally add 2 identical cards), but shows a mild warning:
 
 ```dart
-// card_viewmodel.dart — checkDuplicate() gọi trước khi save
+// card_viewmodel.dart — checkDuplicate() called before save
 Future<bool> isDuplicate(String deckId, String front, String back) async {
   final existing = await cardDao.findByFrontBack(deckId, front.trim(), back.trim());
   return existing != null;
 }
 
-// card_form_screen.dart — trong onSave handler
+// card_form_screen.dart — inside onSave handler
 if (await viewModel.isDuplicate(deckId, front, back)) {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (_) => AlertDialog(
-      title: const Text('Card có thể bị trùng'),
-      content: const Text('Đã có card với nội dung tương tự trong deck. Vẫn thêm?'),
+      title: const Text('Possible duplicate card'),
+      content: const Text('A card with similar content already exists in the deck. Add anyway?'),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Hủy')),
-        TextButton(onPressed: () => Navigator.pop(context, true),  child: const Text('Thêm anyway')),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context, true),  child: const Text('Add anyway')),
       ],
     ),
   );
-  if (confirmed != true) return; // user hủy
+  if (confirmed != true) return; // user cancelled
 }
 await viewModel.saveCard(deckId, front, back);
 ```
 
-#### [NEW] CSV Import — Xử lý file picker + trùng lặp
+#### [NEW] CSV Import — File picker + duplicate handling
 
-**Vấn đề scoped storage**: Trên một số Android, `file_picker` trả về `PlatformFile.path == null` (SAF chỉ cấp bytes, không cấp path trực tiếp). Phải fallback sang `PlatformFile.bytes`:
+**Scoped storage issue**: On some Android versions, `file_picker` returns `PlatformFile.path == null` (SAF only grants bytes, not direct paths). Must fallback to `PlatformFile.bytes`:
 
 ```dart
-// csv_parser.dart — đọc file an toàn
+// csv_parser.dart — safely read files
 Future<String> _readCsvContent(PlatformFile file) async {
   if (file.path != null) {
-    // Happy path: có path trực tiếp (Android <13 hoặc emulator)
+    // Happy path: has direct path (Android <13 or emulator)
     return await File(file.path!).readAsString();
   } else if (file.bytes != null) {
-    // Fallback: SAF chỉ trả bytes (Android 13+ scoped storage)
+    // Fallback: SAF only returns bytes (Android 13+ scoped storage)
     return utf8.decode(file.bytes!);
   } else {
-    throw Exception('Không đọc được file — cả path lẫn bytes đều null');
+    throw Exception('Failed to read file — both path and bytes are null');
   }
 }
 
-// file_picker call — luôn request withData: true để có bytes fallback
+// file_picker call — always request withData: true to have bytes fallback
 final result = await FilePicker.platform.pickFiles(
   type: FileType.custom,
   allowedExtensions: ['csv', 'txt'],
-  withData: true,   // ← bắt buộc để có PlatformFile.bytes
+  withData: true,   // ← required to get PlatformFile.bytes
 );
 ```
 
-**Xử lý trùng lặp:**
+**Duplicate handling:**
 
 ```dart
 Future<ImportResult> importCsv(String deckId, PlatformFile file) async {
@@ -397,7 +397,7 @@ Future<ImportResult> importCsv(String deckId, PlatformFile file) async {
   for (final row in parsedRows) {
     final key = '${row.front}|||${row.back}';
     if (existingPairs.contains(key)) {
-      skipped++; // bỏ qua exact match front + back
+      skipped++; // skip exact front + back matches
       continue;
     }
     await cardDao.insertCard(deckId, row.front, row.back);
@@ -407,58 +407,58 @@ Future<ImportResult> importCsv(String deckId, PlatformFile file) async {
 }
 ```
 
-Sau import hiện snackbar: *"Đã import 12 card, bỏ qua 3 trùng lặp"*.
+After import, show a snackbar: *"Imported 12 cards, skipped 3 duplicates"*.
 
 #### [NEW] Study Screen (Flashcard Flip)
 
 ```
 ┌────────────────────────┐
 │                        │
-│      [FRONT]           │  ← Tap để lật
+│      [FRONT]           │  ← Tap to flip
 │      "Apple"           │
 │                        │
 └────────────────────────┘
-         ↓ lật
+         ↓ flip
 ┌────────────────────────┐
 │      [BACK]            │
 │      "Quả táo"         │
 │                        │
-│  [😅 Khó] [😊 OK] [😎 Dễ] │
+│  [😅 Hard] [😊 OK] [😎 Easy] │
 └────────────────────────┘
 ```
 
-- Animation lật 3D (`AnimationController` + `Transform`)
-- 3 nút → quality SM-2: Khó=0, OK=3, Dễ=5
-- Mỗi tap: cập nhật `flashcards` (SM-2 fields) + insert vào `review_history`
-- Progress bar hiển thị tiến độ buổi học
+- 3D flip animation (`AnimationController` + `Transform`)
+- 3 buttons → SM-2 quality: Hard=0, OK=3, Easy=5
+- Each tap: updates `flashcards` (SM-2 fields) + inserts into `review_history`
+- Progress bar displays study session progress
 
-**`study_viewmodel.dart` — Logic kết thúc buổi học:**
+**`study_viewmodel.dart` — End study session logic:**
 
 ```dart
-// Định nghĩa: quality >= 3 (OK hoặc Dễ) = đúng; quality 0 (Khó) = sai
+// Definition: quality >= 3 (OK or Easy) = correct; quality 0 (Hard) = incorrect
 bool _isCorrect(int quality) => quality >= 3;
 
-// Gọi khi user bấm Khó/OK/Dễ cho 1 card
+// Called when user presses Hard/OK/Easy on a card
 Future<void> submitReview(Flashcard card, int quality) async {
-  // 1. Tính SM-2 mới
+  // 1. Calculate new SM-2 values
   final result = calculateNextReview(
     repetition: card.repetition,
     easiness: card.easiness,
     intervalDays: card.interval,
     quality: quality,
   );
-  // 2. Cập nhật flashcard
+  // 2. Update flashcard
   await cardDao.updateSM2(card.id, result);
-  // 3. Log vào review_history
+  // 3. Log into review_history
   await reviewHistoryDao.insert(cardId: card.id, deckId: deckId, quality: quality);
   // 4. Track session stats
   _sessionStudied++;
   if (_isCorrect(quality)) _sessionCorrect++;
-  // 5. Nếu hết cards → kết thúc buổi học
+  // 5. If out of cards → end study session
   if (_queueIsEmpty) await _finalizeSession();
 }
 
-// Insert 1 row study_logs sau khi hết tất cả cards due trong buổi
+// Inserts 1 study_logs row after finishing all due cards for the session
 Future<void> _finalizeSession() async {
   await studyLogDao.insert(StudyLog(
     id: const Uuid().v4(),
@@ -473,20 +473,20 @@ Future<void> _finalizeSession() async {
 }
 ```
 
-> **Lưu ý**: `study_logs` chỉ insert **1 row mỗi buổi học** (khi hết queue), không phải mỗi lần lật card. `review_history` mới là nơi lưu từng lần lật.
+> **Note**: `study_logs` only inserts **1 row per study session** (when the queue is empty), not every time a card is flipped. `review_history` is where individual flips are logged.
 
 #### [NEW] Stats Screen
 
-- **Streak** — chuỗi ngày học liên tục (từ `study_logs`)
-- **Bar chart** — số card học theo 7 ngày gần nhất
-- **Pie chart** — breakdown Khó/OK/Dễ từ `review_history` (quality 0 / 3 / 5)
-- Tổng số card, tổng số deck
+- **Streak** — sequence of consecutive study days (from `study_logs`)
+- **Bar chart** — number of cards studied over the last 7 days
+- **Pie chart** — Hard/OK/Easy breakdown from `review_history` (quality 0 / 3 / 5)
+- Total cards, total decks
 
 #### [NEW] Settings Screen
 
-- **Theme mode** — 3 lựa chọn: ☀️ Sáng / 🌙 Tối / 🤖 Theo hệ thống (`ThemeMode.system`)
-- Lưu vào `SharedPreferences` key `theme_mode` (giá trị: `"light"` / `"dark"` / `"system"`)
-- About / version
+- **Theme mode** — 3 options: ☀️ Light / 🌙 Dark / 🤖 System (`ThemeMode.system`)
+- Saved to `SharedPreferences` key `theme_mode` (values: `"light"` / `"dark"` / `"system"`)
+- About / version info
 
 ---
 
@@ -497,7 +497,7 @@ Future<void> _finalizeSession() async {
 ```dart
 import 'package:google_fonts/google_fonts.dart';
 
-// Light theme — dùng GoogleFonts.interTextTheme(), không cần bundle .ttf
+// Light theme — uses GoogleFonts.interTextTheme(), no need to bundle .ttf
 ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: const Color(0xFF4F46E5), // Indigo
@@ -518,10 +518,10 @@ ThemeData darkTheme = ThemeData(
 );
 ```
 
-Trong `app.dart`:
+In `app.dart`:
 
 ```dart
-// Đọc ThemeMode từ SharedPreferences
+// Read ThemeMode from SharedPreferences
 ThemeMode _resolveThemeMode(String? stored) => switch (stored) {
   'light'  => ThemeMode.light,
   'dark'   => ThemeMode.dark,
@@ -543,38 +543,38 @@ MaterialApp(
 #### [MODIFY] `android/app/src/main/AndroidManifest.xml`
 
 ```diff
-- <!-- Cho phép đọc file để import CSV -->
+- <!-- Allow reading files for CSV import -->
 - <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
 -     android:maxSdkVersion="32" />
 - <uses-permission android:name="android.permission.READ_MEDIA_DOCUMENTS" />
 ```
 
-> **Lý do bỏ**: `file_picker` dùng `Intent.ACTION_OPEN_DOCUMENT` (Storage Access Framework) — hệ thống tự hiện file picker mà không cần app khai báo permission storage nào. Khai báo thừa sẽ bị Play Store hỏi lý do.
+> **Reason for removal**: `file_picker` uses `Intent.ACTION_OPEN_DOCUMENT` (Storage Access Framework) — the system natively displays a file picker without requiring the app to declare any storage permissions. Redundant permission requests will be flagged by the Play Store.
 
-Không cần thêm permission nào cho CSV import.
+No permissions are needed for CSV imports.
 
 ---
 
-## Màn hình flow
+## Screen Flow
 
 ```mermaid
 flowchart TD
-    A["Home — Danh sách Deck (badge due today)"] --> B[Deck Detail]
+    A["Home — Deck List (due today badge)"] --> B[Deck Detail]
     B --> C[Study — Flashcard Flip]
-    B --> D[Quiz — Trắc nghiệm]
+    B --> D[Quiz — Multiple Choice]
     B --> E[Import CSV]
-    B --> F[Thêm / Sửa Card]
-    A --> G["Stats — Streak, Bar chart, Pie chart Khó/OK/Dễ"]
-    A --> H["Settings — Theme: Sáng/Tối/Hệ thống"]
-    C --> I[Kết quả học]
+    B --> F[Add / Edit Card]
+    A --> G["Stats — Streak, Bar chart, Hard/OK/Easy Pie chart"]
+    A --> H["Settings — Theme: Light/Dark/System"]
+    C --> I[Study Results]
     D --> I
 ```
 
 ---
 
-## Tech Stack tóm tắt
+## Tech Stack Summary
 
-| Thành phần | Công nghệ |
+| Component | Technology |
 |-----------|----------|
 | Framework | Flutter 3.x (Dart) |
 | Database | SQLite via `sqflite` |
@@ -594,10 +594,10 @@ flowchart TD
 ```bash
 cd zenflashcards
 flutter test test/core/algorithms/sm2_test.dart
-flutter test  # toàn bộ
+flutter test  # runs all
 ```
 
-**`test/core/algorithms/sm2_test.dart`** — các case cần test:
+**`test/core/algorithms/sm2_test.dart`** — test cases required:
 
 ```dart
 void main() {
@@ -650,23 +650,23 @@ void main() {
 }
 ```
 
-### Kiểm tra thủ công
+### Manual Testing
 
-- [ ] Tạo deck → thêm card → học flashcard → lật card, bấm Khó/OK/Dễ
-- [ ] SM-2: card "Dễ" → `next_review` xa hơn card "Khó"
-- [ ] Card mới tạo → xuất hiện ngay trong lượt học (`next_review = now`)
-- [ ] Hết tất cả cards → `study_logs` insert đúng 1 row; `correct` = số lần quality ≥ 3
-- [ ] Thêm card thủ công trùng front+back → hiện dialog warning (không bị block)
-- [ ] Import CSV → card xuất hiện đúng; import lại → snackbar "X imported, Y bỏ qua"
-- [ ] Import CSV trên Android 13+ (scoped storage) → đọc được nội dung qua bytes fallback
-- [ ] Quiz: 4 lựa chọn, đúng → xanh, sai → đỏ + hiện đáp án đúng
-- [ ] Stats: Pie chart breakdown Khó/OK/Dễ đúng sau vài buổi học
-- [ ] Stats: Bar chart đúng số card theo 7 ngày; streak tăng khi học liên tục
-- [ ] Settings: chọn "Theo hệ thống" → đổi theme điện thoại → app tự đổi
-- [ ] Tắt app → mở lại → data vẫn còn (SQLite persist)
+- [ ] Create deck → add card → study flashcards → flip card, press Hard/OK/Easy
+- [ ] SM-2: "Easy" cards → `next_review` gets pushed further than "Hard" cards
+- [ ] Newly created cards → appear immediately in the study queue (`next_review = now`)
+- [ ] Exhaust all cards → `study_logs` inserts exactly 1 row; `correct` = number of times quality ≥ 3
+- [ ] Manually add an identical front+back card → shows warning dialog (but doesn't block)
+- [ ] Import CSV → cards appear correctly; re-import → snackbar shows "X imported, Y skipped"
+- [ ] Import CSV on Android 13+ (scoped storage) → successfully reads content via bytes fallback
+- [ ] Quiz: 4 choices, correct → green, incorrect → red + correct answer revealed
+- [ ] Stats: Pie chart breakdown of Hard/OK/Easy populates correctly after a few study sessions
+- [ ] Stats: Bar chart correctly maps card counts to the past 7 days; streak increases on consecutive days
+- [ ] Settings: Select "System" → change phone theme → app theme follows suit
+- [ ] Close app → reopen → data persists (SQLite storage)
 
 ```bash
-# Build kiểm tra không lỗi compile
+# Build to ensure there are no compilation errors
 flutter analyze
 flutter build apk --debug
 ```
