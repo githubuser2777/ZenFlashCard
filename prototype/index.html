@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZenFlashCards — UI/UX Interactive Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0F172A;
+      --bg-surface: #1E293B;
+      --primary: #4F46E5;
+      --primary-light: #818CF8;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-caption: #A0AEC0;
+      --divider: #2D3748;
+      --rate-hard: #EF4444;
+      --rate-ok: #F59E0B;
+      --rate-easy: #22C55E;
+      --streak-fire: #F97316;
+      --radius-card: 16px;
+      --radius-btn: 12px;
+      --radius-flash: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: #020617;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Mobile Device Frame Mockup */
+    .device-container {
+      width: 390px;
+      height: 844px;
+      background: var(--bg-main);
+      border-radius: 44px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 12px #1E293B;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Status bar mockup */
+    .status-bar {
+      height: 44px;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      z-index: 10;
+    }
+
+    /* Screen Views */
+    .screen {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 0 20px 20px 20px;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top App Bar */
+    .app-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      margin-bottom: 12px;
+    }
+    .app-bar-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .app-bar-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 20px;
+      cursor: pointer;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .icon-btn:active { background: rgba(255,255,255,0.1); }
+
+    /* Deck Cards */
+    .deck-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-card);
+      padding: 18px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .deck-card:active { transform: scale(0.98); }
+    .deck-info h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .deck-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
+    .deck-submeta { font-size: 11px; color: var(--text-caption); }
+    .due-badge {
+      background: var(--primary);
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .done-badge {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--rate-easy);
+      font-size: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* FAB */
+    .fab {
+      position: absolute;
+      bottom: 80px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 28px;
+      background: var(--primary);
+      color: white;
+      font-size: 28px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+    }
+    .fab:active { transform: scale(0.92); }
+
+    /* Bottom Nav Bar */
+    .bottom-nav {
+      height: 64px;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--divider);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+    }
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+      min-width: 48px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      transition: color 0.2s;
+    }
+    .nav-item.active { color: var(--primary-light); background: rgba(79, 70, 229, 0.12); }
+
+    /* Buttons */
+    .btn {
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: var(--radius-btn);
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-outlined { background: transparent; border: 1.5px solid var(--primary); color: var(--primary-light); }
+    .btn-text { background: transparent; color: var(--text-muted); }
+
+    /* Action Row in Deck Detail */
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .action-row .btn { flex: 1; font-size: 13px; }
+
+    /* Card Item List */
+    .card-item {
+      background: var(--bg-surface);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-front { font-weight: 600; font-size: 15px; }
+    .card-back { color: var(--text-muted); font-size: 14px; }
+
+    /* Study Flashcard Screen */
+    .progress-bar-container {
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      width: 100%;
+      border-radius: 2px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 30%;
+      transition: width 0.3s ease;
+    }
+
+    /* 3D Flip Card Container */
+    .flashcard-wrapper {
+      height: 380px;
+      perspective: 1000px;
+      margin-bottom: 24px;
+      cursor: pointer;
+    }
+    .flashcard-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .flashcard-wrapper.flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+    .flashcard-front, .flashcard-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background: var(--bg-surface);
+      border-radius: var(--radius-flash);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      border: 1px solid var(--divider);
+    }
+    .flashcard-back {
+      transform: rotateY(180deg);
+    }
+    .card-tag {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .card-main-word {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+    .card-def {
+      font-size: 24px;
+      font-weight: 600;
+      color: #CBD5E1;
+      margin-bottom: 12px;
+    }
+    .card-example {
+      font-size: 13px;
+      color: var(--text-caption);
+      font-style: italic;
+    }
+    .flip-hint {
+      position: absolute;
+      bottom: 16px;
+      font-size: 11px;
+      color: var(--text-caption);
+    }
+
+    /* Rating Buttons */
+    .rating-row {
+      display: flex;
+      gap: 10px;
+      transition: opacity 0.3s;
+    }
+    .rating-row.disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .btn-rate {
+      flex: 1;
+      min-height: 52px;
+      border-radius: 26px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .rate-hard { background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .rate-ok { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .rate-easy { background: rgba(34, 197, 94, 0.15); color: #22C55E; border: 1px solid rgba(34, 197, 94, 0.3); }
+
+    /* Quiz Screen */
+    .quiz-question-card {
+      background: var(--bg-surface);
+      border-radius: 20px;
+      padding: 28px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .quiz-word { font-size: 26px; font-weight: 700; color: var(--text-main); }
+    .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+    .quiz-opt {
+      background: var(--bg-surface);
+      border: 1.5px solid var(--divider);
+      border-radius: var(--radius-btn);
+      padding: 16px;
+      font-size: 15px;
+      color: var(--text-main);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .quiz-opt.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22C55E;
+      color: #22C55E;
+      font-weight: 600;
+    }
+    .quiz-opt.incorrect {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #EF4444;
+      color: #EF4444;
+      font-weight: 600;
+    }
+
+    /* Result Screen */
+    .result-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-align: center;
+    }
+    .score-ring {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: conic-gradient(var(--primary) 80%, var(--bg-surface) 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .score-ring-inner {
+      width: 144px;
+      height: 144px;
+      border-radius: 50%;
+      background: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .score-num { font-size: 36px; font-weight: 700; color: var(--text-main); }
+    .score-total { font-size: 14px; color: var(--text-muted); }
+    .motivation-msg { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
+    .stats-summary-row { display: flex; gap: 20px; font-size: 15px; margin-bottom: 30px; }
+
+    /* Stats Screen */
+    .streak-card {
+      background: linear-gradient(135deg, #3730A3 0%, #4F46E5 100%);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    .fire-icon { font-size: 38px; }
+    .streak-title { font-size: 20px; font-weight: 700; }
+    .streak-sub { font-size: 12px; opacity: 0.85; }
+
+    .chart-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-card);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .chart-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text-main); }
+    .bar-chart-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 120px;
+      padding-top: 10px;
+    }
+    .bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+    .bar-fill {
+      width: 22px;
+      background: var(--primary);
+      border-radius: 4px 4px 0 0;
+    }
+    .bar-col.today .bar-fill { background: var(--primary-light); box-shadow: 0 0 8px var(--primary-light); }
+    .bar-label { font-size: 11px; color: var(--text-caption); }
+
+    /* Settings Screen */
+    .settings-group {
+      margin-bottom: 20px;
+    }
+    .settings-header { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-caption); margin-bottom: 8px; }
+    .settings-item {
+      background: var(--bg-surface);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .theme-chips { display: flex; gap: 6px; }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--divider);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <div class="device-container">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>📶 🔋</span>
+    </div>
+
+    <!-- MÀN HÌNH 1: HOME -->
+    <div id="screen-home" class="screen active">
+      <div class="app-bar">
+        <div class="app-bar-title">ZenFlashCards</div>
+        <button class="icon-btn">🔍</button>
+      </div>
+
+      <div class="deck-card" onclick="openDeckDetail('Tiếng Anh Thông Dụng')">
+        <div class="deck-info">
+          <h3>Tiếng Anh Thông Dụng</h3>
+          <div class="deck-meta">🇬🇧 English → 🇻🇳 Tiếng Việt</div>
+          <div class="deck-submeta">39 cards</div>
+        </div>
+        <div class="due-badge">12</div>
+      </div>
+
+      <div class="deck-card" onclick="openDeckDetail('IELTS Speaking Part 1')">
+        <div class="deck-info">
+          <h3>IELTS Speaking Part 1</h3>
+          <div class="deck-meta">🇬🇧 English → 🇻🇳 Tiếng Việt</div>
+          <div class="deck-submeta">50 cards</div>
+        </div>
+        <div class="done-badge">✅</div>
+      </div>
+
+      <div class="deck-card" onclick="openDeckDetail('Từ Vựng N3')">
+        <div class="deck-info">
+          <h3>Từ Vựng N3</h3>
+          <div class="deck-meta">🇯🇵 Nhật Bản → 🇻🇳 Tiếng Việt</div>
+          <div class="deck-submeta">85 cards</div>
+        </div>
+        <div class="due-badge">8</div>
+      </div>
+
+      <button class="fab" onclick="alert('Thêm deck mới!')">+</button>
+    </div>
+
+    <!-- MÀN HÌNH 2: DECK DETAIL -->
+    <div id="screen-deck-detail" class="screen">
+      <div class="app-bar">
+        <button class="icon-btn" onclick="showScreen('screen-home')">←</button>
+        <div style="text-align: center;">
+          <div id="detail-deck-title" class="app-bar-title" style="font-size: 17px;">Tiếng Anh Thông Dụng</div>
+          <div class="app-bar-sub" style="font-size: 11px;">English → Vietnamese · 39 cards</div>
+        </div>
+        <button class="icon-btn">⋮</button>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="showScreen('screen-study')">📚 Học ngay</button>
+        <button class="btn btn-outlined" onclick="showScreen('screen-quiz')">🎯 Quiz</button>
+        <button class="btn btn-text">📥 Import</button>
+      </div>
+
+      <div style="font-size: 12px; color: var(--text-caption); margin-bottom: 8px;">DANH SÁCH THẺ (39)</div>
+      <div class="card-item">
+        <span class="card-front">Serendipity</span>
+        <span class="card-back">Sự tình cờ may mắn</span>
+      </div>
+      <div class="card-item">
+        <span class="card-front">Ephemeral</span>
+        <span class="card-back">Chóng vánh, phù du</span>
+      </div>
+      <div class="card-item">
+        <span class="card-front">Resilience</span>
+        <span class="card-back">Khả năng phục hồi</span>
+      </div>
+      <div class="card-item">
+        <span class="card-front">Petrichor</span>
+        <span class="card-back">Mùi mưa trên đất khô</span>
+      </div>
+
+      <button class="fab" onclick="alert('Thêm thẻ mới!')">+</button>
+    </div>
+
+    <!-- MÀN HÌNH 3: STUDY FLASHCARD FLIP -->
+    <div id="screen-study" class="screen">
+      <div class="app-bar">
+        <button class="icon-btn" onclick="showScreen('screen-deck-detail')">✕</button>
+        <div class="app-bar-sub" style="font-weight: 600; color: var(--text-main);">3 / 12</div>
+        <div style="width: 44px;"></div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width: 25%;"></div>
+      </div>
+
+      <div class="flashcard-wrapper" id="flashcard" onclick="flipFlashcard()">
+        <div class="flashcard-inner">
+          <div class="flashcard-front">
+            <div class="card-tag">ENGLISH</div>
+            <div class="card-main-word">Serendipity</div>
+            <div class="flip-hint">Tap để lật 👆</div>
+          </div>
+          <div class="flashcard-back">
+            <div class="card-tag">TIẾNG VIỆT</div>
+            <div class="card-def">Sự tình cờ may mắn</div>
+            <div class="card-example">"Finding this place was pure serendipity."</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="rating-row" class="rating-row disabled">
+        <button class="btn-rate rate-hard" onclick="nextStudyCard()">😅 Khó</button>
+        <button class="btn-rate rate-ok" onclick="nextStudyCard()">😊 OK</button>
+        <button class="btn-rate rate-easy" onclick="nextStudyCard()">😎 Dễ</button>
+      </div>
+    </div>
+
+    <!-- MÀN HÌNH 4: QUIZ -->
+    <div id="screen-quiz" class="screen">
+      <div class="app-bar">
+        <button class="icon-btn" onclick="showScreen('screen-deck-detail')">✕</button>
+        <div class="app-bar-sub" style="font-weight: 600; color: var(--text-main);">4 / 10</div>
+        <div style="width: 44px;"></div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width: 40%;"></div>
+      </div>
+
+      <div class="quiz-question-card">
+        <div class="card-tag" style="margin-bottom: 8px;">CHỌN NGHĨA ĐÚNG</div>
+        <div class="quiz-word">Resilience</div>
+      </div>
+
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="answerQuiz(this, false)">Chóng vánh, phù du</div>
+        <div class="quiz-opt" onclick="answerQuiz(this, true)">Khả năng phục hồi, kiên cường</div>
+        <div class="quiz-opt" onclick="answerQuiz(this, false)">Sự tình cờ may mắn</div>
+        <div class="quiz-opt" onclick="answerQuiz(this, false)">Mùi đất sau mưa</div>
+      </div>
+    </div>
+
+    <!-- MÀN HÌNH 5: SESSION RESULT -->
+    <div id="screen-result" class="screen">
+      <div class="result-container">
+        <div class="score-ring">
+          <div class="score-ring-inner">
+            <div class="score-num">8/10</div>
+            <div class="score-total">Đúng 80%</div>
+          </div>
+        </div>
+        <div class="motivation-msg">Tuyệt vời! 🎉</div>
+        <div class="stats-summary-row">
+          <span>✅ Đúng: <b>8</b></span>
+          <span>❌ Sai: <b>2</b></span>
+        </div>
+        <div style="display: flex; gap: 12px; width: 100%;">
+          <button class="btn btn-outlined" style="flex: 1;" onclick="showScreen('screen-study')">Học lại</button>
+          <button class="btn btn-primary" style="flex: 1;" onclick="showScreen('screen-deck-detail')">Xong</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÀN HÌNH 6: STATS -->
+    <div id="screen-stats" class="screen">
+      <div class="app-bar">
+        <div class="app-bar-title">Thống kê</div>
+      </div>
+
+      <div class="streak-card">
+        <div class="fire-icon">🔥</div>
+        <div>
+          <div class="streak-title">7 ngày liên tiếp</div>
+          <div class="streak-sub">Học hôm nay để giữ streak!</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Cards học trong 7 ngày</div>
+        <div class="bar-chart-bars">
+          <div class="bar-col"><div class="bar-fill" style="height: 40px;"></div><span class="bar-label">T2</span></div>
+          <div class="bar-col"><div class="bar-fill" style="height: 65px;"></div><span class="bar-label">T3</span></div>
+          <div class="bar-col"><div class="bar-fill" style="height: 30px;"></div><span class="bar-label">T4</span></div>
+          <div class="bar-col"><div class="bar-fill" style="height: 90px;"></div><span class="bar-label">T5</span></div>
+          <div class="bar-col"><div class="bar-fill" style="height: 50px;"></div><span class="bar-label">T6</span></div>
+          <div class="bar-col"><div class="bar-fill" style="height: 75px;"></div><span class="bar-label">T7</span></div>
+          <div class="bar-col today"><div class="bar-fill" style="height: 100px;"></div><span class="bar-label">CN</span></div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Đánh giá chất lượng</div>
+        <div style="font-size: 13px; color: var(--text-muted); display: flex; justify-content: space-around; padding: 10px 0;">
+          <span>😎 Dễ: <b>60%</b></span>
+          <span>😊 OK: <b>25%</b></span>
+          <span>😅 Khó: <b>15%</b></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÀN HÌNH 7: SETTINGS -->
+    <div id="screen-settings" class="screen">
+      <div class="app-bar">
+        <div class="app-bar-title">Cài đặt</div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-header">Giao diện</div>
+        <div class="settings-item">
+          <span>Chủ đề</span>
+          <div class="theme-chips">
+            <div class="chip">☀️ Sáng</div>
+            <div class="chip active">🌙 Tối</div>
+            <div class="chip">🤖 System</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-header">Thông tin</div>
+        <div class="settings-item">
+          <span>Phiên bản</span>
+          <span style="color: var(--text-caption);">1.0.0</span>
+        </div>
+        <div class="settings-item">
+          <span>Góp ý / Báo lỗi</span>
+          <span style="color: var(--text-caption);">→</span>
+        </div>
+        <div class="settings-item">
+          <span>About ZenFlashCards</span>
+          <span style="color: var(--text-caption);">→</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="switchTab('screen-home', this)">🏠</button>
+      <button class="nav-item" onclick="switchTab('screen-stats', this)">📊</button>
+      <button class="nav-item" onclick="switchTab('screen-settings', this)">⚙️</button>
+    </div>
+
+  </div>
+
+  <script>
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function switchTab(screenId, btn) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      showScreen(screenId);
+    }
+
+    function openDeckDetail(title) {
+      document.getElementById('detail-deck-title').innerText = title;
+      showScreen('screen-deck-detail');
+    }
+
+    let isFlipped = false;
+    function flipFlashcard() {
+      const card = document.getElementById('flashcard');
+      const ratingRow = document.getElementById('rating-row');
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        card.classList.add('flipped');
+        ratingRow.classList.remove('disabled');
+      } else {
+        card.classList.remove('flipped');
+        ratingRow.classList.add('disabled');
+      }
+    }
+
+    function nextStudyCard() {
+      isFlipped = true;
+      flipFlashcard();
+      alert('Đã lưu đánh giá! Đang nạp thẻ tiếp theo...');
+    }
+
+    function answerQuiz(element, isCorrect) {
+      if (isCorrect) {
+        element.classList.add('correct');
+        element.innerHTML += ' <span>✓</span>';
+        setTimeout(() => showScreen('screen-result'), 1200);
+      } else {
+        element.classList.add('incorrect');
+        element.innerHTML += ' <span>✗</span>';
+        // Auto highlight correct option for colorblind accessibility
+        const options = document.querySelectorAll('.quiz-opt');
+        options[1].classList.add('correct');
+        options[1].innerHTML += ' <span>✓</span>';
+        setTimeout(() => showScreen('screen-result'), 1400);
+      }
+    }
+  </script>
+</body>
+</html>
