@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/app_colors.dart';
 
 class EmptyState extends StatelessWidget {
@@ -21,7 +21,8 @@ class EmptyState extends StatelessWidget {
           if (illustration != null)
             illustration!
           else
-            const Icon(LucideIcons.library, size: 80, color: AppColors.textSecondary),
+            const Icon(LucideIcons.library,
+                size: 80, color: AppColors.textSecondary),
           const SizedBox(height: 16),
           Text(
             message,

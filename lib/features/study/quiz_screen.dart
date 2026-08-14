@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/models/deck.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/components/progress_bar.dart';
 import 'quiz_viewmodel.dart';
-import 'session_result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   final Deck deck;
@@ -51,7 +51,7 @@ class _QuizScreenState extends State<QuizScreen> {
     }
 
     if (!mounted) return;
-    
+
     // Check if we are still on the same question (meaning user hasn't manually tapped)
     if (quizVM.selectedOption != null) {
       _goToNextQuestion(quizVM);
@@ -62,15 +62,10 @@ class _QuizScreenState extends State<QuizScreen> {
     quizVM.nextQuestion();
 
     if (quizVM.isFinished && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SessionResultScreen(
-            correctCount: quizVM.correctCount,
-            totalCount: quizVM.quizCards.length,
-          ),
-        ),
-      );
+      context.pushReplacement('/session_result', extra: {
+        'correctCount': quizVM.correctCount,
+        'totalCount': quizVM.quizCards.length,
+      });
     }
   }
 
@@ -82,21 +77,24 @@ class _QuizScreenState extends State<QuizScreen> {
           label: 'Close quiz',
           child: IconButton(
             icon: const Icon(LucideIcons.x),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
           ),
         ),
         title: Consumer<QuizViewModel>(
           builder: (context, quizVM, _) {
             final total = quizVM.quizCards.length;
             final current = quizVM.currentIndex + 1;
-            return Text('Quiz $current / ${total == 0 ? 1 : total}', style: const TextStyle(fontSize: 16));
+            return Text('Quiz $current / ${total == 0 ? 1 : total}',
+                style: const TextStyle(fontSize: 16));
           },
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
           child: Consumer<QuizViewModel>(
             builder: (context, quizVM, _) {
-              final progress = quizVM.quizCards.isEmpty ? 0.0 : quizVM.currentIndex / quizVM.quizCards.length;
+              final progress = quizVM.quizCards.isEmpty
+                  ? 0.0
+                  : quizVM.currentIndex / quizVM.quizCards.length;
               return ProgressBar(progress: progress);
             },
           ),
@@ -116,7 +114,8 @@ class _QuizScreenState extends State<QuizScreen> {
           return GestureDetector(
             // Tap anywhere to continue if answered incorrectly
             onTap: () {
-              if (quizVM.selectedOption != null && quizVM.selectedOption != quizVM.correctOption) {
+              if (quizVM.selectedOption != null &&
+                  quizVM.selectedOption != quizVM.correctOption) {
                 _goToNextQuestion(quizVM);
               }
             },
@@ -134,14 +133,20 @@ class _QuizScreenState extends State<QuizScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.bgSurface,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4))],
+                          boxShadow: const [
+                            BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 10,
+                                offset: Offset(0, 4))
+                          ],
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'Select the correct meaning',
-                              style: AppTypography.label.copyWith(color: AppColors.textSecondary),
+                              style: AppTypography.label
+                                  .copyWith(color: AppColors.textSecondary),
                             ),
                             const SizedBox(height: 16),
                             Text(
@@ -159,7 +164,8 @@ class _QuizScreenState extends State<QuizScreen> {
                     flex: 2,
                     child: ListView.separated(
                       itemCount: quizVM.currentOptions.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 12),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final option = quizVM.currentOptions[index];
                         return _buildChoiceButton(option, quizVM);
@@ -188,11 +194,13 @@ class _QuizScreenState extends State<QuizScreen> {
       if (isCorrect) {
         backgroundColor = AppColors.rateEasy.withValues(alpha: 0.2);
         borderColor = AppColors.rateEasy;
-        trailingIcon = const Icon(LucideIcons.checkCircle2, color: AppColors.rateEasy);
+        trailingIcon =
+            const Icon(LucideIcons.checkCircle2, color: AppColors.rateEasy);
       } else if (isSelected && !isCorrect) {
         backgroundColor = AppColors.rateHard.withValues(alpha: 0.2);
         borderColor = AppColors.rateHard;
-        trailingIcon = const Icon(LucideIcons.xCircle, color: AppColors.rateHard);
+        trailingIcon =
+            const Icon(LucideIcons.xCircle, color: AppColors.rateHard);
       }
     }
 
@@ -215,7 +223,8 @@ class _QuizScreenState extends State<QuizScreen> {
               Expanded(
                 child: Text(
                   option,
-                  style: AppTypography.title.copyWith(color: AppColors.textPrimary),
+                  style: AppTypography.title
+                      .copyWith(color: AppColors.textPrimary),
                 ),
               ),
               if (trailingIcon != null) trailingIcon,

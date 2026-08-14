@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../stats/stats_viewmodel.dart';
 import '../../shared/theme/app_colors.dart';
@@ -34,9 +34,11 @@ class _StatsScreenState extends State<StatsScreen> {
             children: [
               _buildStreakCard(statsVM.streak),
               const SizedBox(height: 16),
-              _buildStatCard('Total Decks', statsVM.totalDecks, LucideIcons.library),
+              _buildStatCard(
+                  'Total Decks', statsVM.totalDecks, LucideIcons.library),
               const SizedBox(height: 16),
-              _buildStatCard('Total Cards', statsVM.totalCards, LucideIcons.copy),
+              _buildStatCard(
+                  'Total Cards', statsVM.totalCards, LucideIcons.copy),
             ],
           );
         },
@@ -50,7 +52,9 @@ class _StatsScreenState extends State<StatsScreen> {
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))],
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
+        ],
       ),
       child: Row(
         children: [
@@ -64,7 +68,9 @@ class _StatsScreenState extends State<StatsScreen> {
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(title, style: AppTypography.title.copyWith(color: AppColors.textSecondary)),
+            child: Text(title,
+                style: AppTypography.title
+                    .copyWith(color: AppColors.textSecondary)),
           ),
           TweenAnimationBuilder<int>(
             tween: IntTween(begin: 0, end: value),
@@ -87,7 +93,9 @@ class _StatsScreenState extends State<StatsScreen> {
           colors: [Color(0xFF3730A3), AppColors.primary],
         ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
+        ],
       ),
       child: Row(
         children: [

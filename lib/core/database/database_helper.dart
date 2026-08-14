@@ -1,15 +1,27 @@
+import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
+  static Completer<Database>? _initCompleter;
 
   DatabaseHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('zen_flashcards.db');
+    if (_initCompleter != null) return _initCompleter!.future;
+
+    _initCompleter = Completer<Database>();
+    try {
+      _database = await _initDB('zen_flashcards.db');
+      _initCompleter!.complete(_database!);
+    } catch (e) {
+      _initCompleter!.completeError(e);
+      _initCompleter = null;
+      rethrow;
+    }
     return _database!;
   }
 
@@ -21,8 +33,13 @@ class DatabaseHelper {
       path,
       version: 1,
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
       onConfigure: _onConfigure,
     );
+  }
+
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // Migration roadmap placeholder for future schema versions
   }
 
   Future _onConfigure(Database db) async {
@@ -59,7 +76,8 @@ class DatabaseHelper {
     ''');
 
     await db.execute('CREATE INDEX idx_flashcards_deck ON flashcards(deck_id)');
-    await db.execute('CREATE INDEX idx_flashcards_next_review ON flashcards(next_review)');
+    await db.execute(
+        'CREATE INDEX idx_flashcards_next_review ON flashcards(next_review)');
 
     // 3. study_logs table
     await db.execute('''
@@ -72,7 +90,8 @@ class DatabaseHelper {
       )
     ''');
 
-    await db.execute('CREATE INDEX idx_study_logs_date ON study_logs(studied_at)');
+    await db
+        .execute('CREATE INDEX idx_study_logs_date ON study_logs(studied_at)');
 
     // 4. review_history table
     await db.execute('''
@@ -86,8 +105,10 @@ class DatabaseHelper {
       )
     ''');
 
-    await db.execute('CREATE INDEX idx_review_history_card ON review_history(card_id)');
-    await db.execute('CREATE INDEX idx_review_history_deck ON review_history(deck_id)');
+    await db.execute(
+        'CREATE INDEX idx_review_history_card ON review_history(card_id)');
+    await db.execute(
+        'CREATE INDEX idx_review_history_deck ON review_history(deck_id)');
   }
 
   Future close() async {

@@ -21,8 +21,11 @@ SM2Result calculateNextReview({
   required int intervalDays,
   required int quality,
 }) {
+  // Validate and clamp quality to standard SM-2 0-5 range
+  final clampedQuality = quality.clamp(0, 5);
+
   // If quality < 3, reset repetition count to 0
-  int newRep = quality < 3 ? 0 : repetition + 1;
+  int newRep = clampedQuality < 3 ? 0 : repetition + 1;
 
   // Calculate new interval in days
   int newInterval;
@@ -35,12 +38,12 @@ SM2Result calculateNextReview({
   }
 
   // Calculate new easiness factor
-  double newEasiness = easiness + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+  double newEasiness = easiness +
+      (0.1 - (5 - clampedQuality) * (0.08 + (5 - clampedQuality) * 0.02));
   if (newEasiness < 1.3) newEasiness = 1.3; // Minimum boundary for EF
 
-  final nextMs = DateTime.now()
-      .add(Duration(days: newInterval))
-      .millisecondsSinceEpoch;
+  final nextMs =
+      DateTime.now().add(Duration(days: newInterval)).millisecondsSinceEpoch;
 
   return SM2Result(
     repetition: newRep,

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/models/deck.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/components/zen_button.dart';
 import '../card/card_viewmodel.dart';
-import '../card/card_form.dart';
-import '../study/study_screen.dart';
-import '../study/quiz_screen.dart';
 
 class DeckDetailScreen extends StatefulWidget {
   final Deck deck;
@@ -40,12 +38,14 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
 
       if (result != null && result.files.isNotEmpty) {
         final platformFile = result.files.first;
-        final importResult = await cardVM.importCsv(widget.deck.id, platformFile);
+        final importResult =
+            await cardVM.importCsv(widget.deck.id, platformFile);
         if (mounted && context.mounted) {
           HapticFeedback.mediumImpact();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Imported ${importResult['imported']} cards. Skipped ${importResult['skipped']} duplicates.'),
+              content: Text(
+                  'Imported ${importResult['imported']} cards. Skipped ${importResult['skipped']} duplicates.'),
             ),
           );
         }
@@ -54,7 +54,8 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
       if (mounted && context.mounted) {
         HapticFeedback.heavyImpact();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.rateHard),
+          SnackBar(
+              content: Text('Error: $e'), backgroundColor: AppColors.rateHard),
         );
       }
     }
@@ -82,7 +83,9 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
                     children: [
                       const Icon(LucideIcons.download, size: 20),
                       const SizedBox(width: 12),
-                      Text('Import CSV', style: AppTypography.body.copyWith(color: AppColors.textPrimary)),
+                      Text('Import CSV',
+                          style: AppTypography.body
+                              .copyWith(color: AppColors.textPrimary)),
                     ],
                   ),
                 ),
@@ -97,16 +100,20 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final cards = cardVM.cards;
-          
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-                child: Text('${widget.deck.languageFront} → ${widget.deck.languageBack} · ${cards.length} cards', style: AppTypography.body),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 12.0),
+                child: Text(
+                    '${widget.deck.languageFront} → ${widget.deck.languageBack} · ${cards.length} cards',
+                    style: AppTypography.body),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                 child: Row(
                   children: [
                     Expanded(
@@ -114,9 +121,12 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
                       child: ZenButton(
                         label: 'Study Now',
                         icon: const Icon(LucideIcons.bookOpen, size: 18),
-                        onPressed: cards.isEmpty ? null : () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => StudyScreen(deck: widget.deck)));
-                        },
+                        onPressed: cards.isEmpty
+                            ? null
+                            : () {
+                                context.push('/deck/${widget.deck.id}/study',
+                                    extra: widget.deck);
+                              },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -126,16 +136,21 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
                         label: 'Quiz',
                         variant: ZenButtonVariant.outlined,
                         icon: const Icon(LucideIcons.target, size: 18),
-                        onPressed: cards.length < 4 ? null : () {
-                          if (cards.length < 4) {
-                            HapticFeedback.heavyImpact();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Need at least 4 cards to start a quiz')),
-                            );
-                            return;
-                          }
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => QuizScreen(deck: widget.deck)));
-                        },
+                        onPressed: cards.length < 4
+                            ? null
+                            : () {
+                                if (cards.length < 4) {
+                                  HapticFeedback.heavyImpact();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Need at least 4 cards to start a quiz')),
+                                  );
+                                  return;
+                                }
+                                context.push('/deck/${widget.deck.id}/quiz',
+                                    extra: widget.deck);
+                              },
                       ),
                     ),
                   ],
@@ -162,7 +177,7 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HapticFeedback.lightImpact();
-          Navigator.push(context, MaterialPageRoute(builder: (_) => CardForm(deckId: widget.deck.id)));
+          context.push('/deck/${widget.deck.id}/add_card');
         },
         child: const Icon(LucideIcons.plus),
       ),

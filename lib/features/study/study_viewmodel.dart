@@ -3,50 +3,58 @@ import 'package:uuid/uuid.dart';
 import '../../core/models/flashcard.dart';
 import '../../core/models/study_log.dart';
 import '../../core/models/review_history.dart';
-import '../../core/database/dao/card_dao.dart';
-import '../../core/database/dao/study_log_dao.dart';
-import '../../core/database/dao/review_history_dao.dart';
+import '../../core/repositories/study_repository.dart';
 import '../../core/algorithms/sm2.dart';
 
 class StudyViewModel extends ChangeNotifier {
-  final CardDao _cardDao = CardDao();
-  final StudyLogDao _studyLogDao = StudyLogDao();
-  final ReviewHistoryDao _reviewHistoryDao = ReviewHistoryDao();
+  final StudyRepository _repository;
   final Uuid _uuid = const Uuid();
+
+  StudyViewModel({required StudyRepository repository})
+      : _repository = repository;
 
   List<Flashcard> _dueCards = [];
   int _currentIndex = 0;
   int _correctCount = 0;
   int _studiedCount = 0;
   bool _isLoading = false;
+  String? _error;
 
   List<Flashcard> get dueCards => _dueCards;
   int get currentIndex => _currentIndex;
   int get correctCount => _correctCount;
   int get studiedCount => _studiedCount;
   bool get isLoading => _isLoading;
-  bool get isFinished => _currentIndex >= _dueCards.length && _dueCards.isNotEmpty;
+  bool get isFinished =>
+      _currentIndex >= _dueCards.length && _dueCards.isNotEmpty;
+  String? get error => _error;
 
-  Flashcard? get currentCard => isFinished || _dueCards.isEmpty ? null : _dueCards[_currentIndex];
+  Flashcard? get currentCard =>
+      isFinished || _dueCards.isEmpty ? null : _dueCards[_currentIndex];
 
   Future<void> loadDueCards(String deckId) async {
     _isLoading = true;
     _currentIndex = 0;
     _correctCount = 0;
     _studiedCount = 0;
+    _error = null;
     notifyListeners();
 
-    _dueCards = await _cardDao.getCardsDueToday(deckId);
-    
+    final result = await _repository.getCardsDueToday(deckId);
+    result.fold(
+      (failure) => _error = failure.message,
+      (data) => _dueCards = data,
+    );
+
     _isLoading = false;
     notifyListeners();
   }
 
   Future<void> answerCard(int quality) async {
     if (currentCard == null) return;
-    
+
     final card = currentCard!;
-    
+
     // Update SM-2
     final result = calculateNextReview(
       repetition: card.repetition,
@@ -67,29 +75,33 @@ class StudyViewModel extends ChangeNotifier {
       createdAt: card.createdAt,
     );
 
-    await _cardDao.update(updatedCard);
+    final updateResult = await _repository.updateCard(updatedCard);
 
-    // Log review
-    final history = ReviewHistory(
-      id: _uuid.v4(),
-      cardId: card.id,
-      deckId: card.deckId,
-      quality: quality,
-      reviewedAt: DateTime.now().millisecondsSinceEpoch,
-    );
-    await _reviewHistoryDao.create(history);
+    updateResult.fold((failure) => _error = failure.message, (_) async {
+      // Log review
+      final history = ReviewHistory(
+        id: _uuid.v4(),
+        cardId: card.id,
+        deckId: card.deckId,
+        quality: quality,
+        reviewedAt: DateTime.now().millisecondsSinceEpoch,
+      );
+      final logResult = await _repository.logReview(history);
 
-    _studiedCount++;
-    if (quality >= 3) {
-      _correctCount++;
-    }
+      logResult.fold((failure) => _error = failure.message, (_) async {
+        _studiedCount++;
+        if (quality >= 3) {
+          _correctCount++;
+        }
 
-    _currentIndex++;
-    
-    if (isFinished) {
-      await _finishSession(card.deckId);
-    }
-    
+        _currentIndex++;
+
+        if (isFinished) {
+          await _finishSession(card.deckId);
+        }
+      });
+    });
+
     notifyListeners();
   }
 
@@ -101,6 +113,10 @@ class StudyViewModel extends ChangeNotifier {
       correct: _correctCount,
       studiedAt: DateTime.now().millisecondsSinceEpoch,
     );
-    await _studyLogDao.create(log);
+    final result = await _repository.finishStudySession(log);
+    result.fold(
+      (failure) => _error = failure.message,
+      (_) => null,
+    );
   }
 }
