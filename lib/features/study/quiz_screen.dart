@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -19,6 +20,9 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
+  Timer? _delayTimer;
+  bool _isTransitioning = false;
+
   @override
   void initState() {
     super.initState();
@@ -27,35 +31,40 @@ class _QuizScreenState extends State<QuizScreen> {
     });
   }
 
-  void _onOptionSelected(String option) async {
+  @override
+  void dispose() {
+    _delayTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onOptionSelected(String option) {
     final quizVM = context.read<QuizViewModel>();
-    if (quizVM.selectedOption != null) {
-      if (mounted && quizVM.selectedOption != quizVM.correctOption) {
-        _goToNextQuestion(quizVM);
-      }
-      return;
-    }
+    if (_isTransitioning || quizVM.selectedOption != null) return;
 
     quizVM.answerQuestion(option);
+    _isTransitioning = true;
 
     final isCorrect = option == quizVM.correctOption;
+    final delayMs = isCorrect ? 1000 : 2000;
 
     if (isCorrect) {
       HapticFeedback.mediumImpact();
-      await Future.delayed(const Duration(milliseconds: 1100));
     } else {
       HapticFeedback.heavyImpact();
-      await Future.delayed(const Duration(milliseconds: 2200));
     }
 
-    if (!mounted) return;
-
-    if (quizVM.selectedOption != null) {
-      _goToNextQuestion(quizVM);
-    }
+    _delayTimer?.cancel();
+    _delayTimer = Timer(Duration(milliseconds: delayMs), () {
+      if (mounted) {
+        _goToNextQuestion(quizVM);
+      }
+    });
   }
 
   void _goToNextQuestion(QuizViewModel quizVM) {
+    _delayTimer?.cancel();
+    _delayTimer = null;
+    _isTransitioning = false;
     quizVM.nextQuestion();
 
     if (quizVM.isFinished && mounted) {

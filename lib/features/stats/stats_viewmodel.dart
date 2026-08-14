@@ -36,20 +36,28 @@ class StatsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  DateTime _stripTime(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+  DateTime _dayOffset(DateTime base, int days) =>
+      DateTime(base.year, base.month, base.day + days);
+
   Future<void> _calculateTotals() async {
     final decksResult = await _repository.getAllDecks();
-    await decksResult.fold((failure) async => _error = failure.message,
-        (decks) async {
-      _totalDecks = decks.length;
-      _totalCards = 0;
-      for (var deck in decks) {
-        final countResult = await _repository.getCardCountForDeck(deck.id);
-        countResult.fold(
-          (_) => null,
-          (count) => _totalCards += count,
-        );
-      }
-    });
+    if (decksResult.isLeft()) {
+      _error = decksResult.getLeft().toNullable()?.message;
+      return;
+    }
+
+    final decks = decksResult.getOrElse((_) => []);
+    _totalDecks = decks.length;
+    _totalCards = 0;
+
+    for (var deck in decks) {
+      final countResult = await _repository.getCardCountForDeck(deck.id);
+      countResult.fold(
+        (_) => null,
+        (count) => _totalCards += count,
+      );
+    }
   }
 
   Future<void> _calculateQualityDistribution() async {
@@ -75,17 +83,16 @@ class StatsViewModel extends ChangeNotifier {
       Map<DateTime, int> cardsPerDay = {};
       for (var log in logs) {
         final date = DateTime.fromMillisecondsSinceEpoch(log.studiedAt);
-        final midnight = DateTime(date.year, date.month, date.day);
+        final midnight = _stripTime(date);
         cardsPerDay[midnight] = (cardsPerDay[midnight] ?? 0) + log.cardsStudied;
       }
 
-      final today = DateTime.now();
-      final todayMidnight = DateTime(today.year, today.month, today.day);
+      final todayMidnight = _stripTime(DateTime.now());
 
       // Calculate 7 days activity
       _last7DaysActivity = List.filled(7, 0);
       for (int i = 0; i < 7; i++) {
-        final targetDate = todayMidnight.subtract(Duration(days: 6 - i));
+        final targetDate = _dayOffset(todayMidnight, -(6 - i));
         _last7DaysActivity[i] = cardsPerDay[targetDate] ?? 0;
       }
 
@@ -95,18 +102,17 @@ class StatsViewModel extends ChangeNotifier {
 
       if (cardsPerDay.containsKey(checkDate)) {
         currentStreak++;
-        checkDate = checkDate.subtract(const Duration(days: 1));
-      } else if (cardsPerDay
-          .containsKey(checkDate.subtract(const Duration(days: 1)))) {
+        checkDate = _dayOffset(checkDate, -1);
+      } else if (cardsPerDay.containsKey(_dayOffset(checkDate, -1))) {
         // Allow 1 day skip (streak maintains if they studied yesterday)
-        checkDate = checkDate.subtract(const Duration(days: 1));
+        checkDate = _dayOffset(checkDate, -1);
         currentStreak++;
-        checkDate = checkDate.subtract(const Duration(days: 1));
+        checkDate = _dayOffset(checkDate, -1);
       }
 
       while (cardsPerDay.containsKey(checkDate)) {
         currentStreak++;
-        checkDate = checkDate.subtract(const Duration(days: 1));
+        checkDate = _dayOffset(checkDate, -1);
       }
 
       _streak = currentStreak;

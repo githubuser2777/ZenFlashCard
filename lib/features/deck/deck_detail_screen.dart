@@ -10,6 +10,7 @@ import '../../shared/theme/app_colors.dart';
 import '../../shared/components/zen_button.dart';
 import '../../shared/components/empty_state.dart';
 import '../card/card_viewmodel.dart';
+import 'deck_viewmodel.dart';
 
 class DeckDetailScreen extends StatefulWidget {
   final Deck deck;
@@ -43,6 +44,7 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
         final importResult =
             await cardVM.importCsv(widget.deck.id, platformFile);
         if (mounted && context.mounted) {
+          context.read<DeckViewModel>().loadDecks();
           HapticFeedback.mediumImpact();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

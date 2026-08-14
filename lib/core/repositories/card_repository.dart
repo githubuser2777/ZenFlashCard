@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import '../utils/failure.dart';
 import '../models/flashcard.dart';
+import '../database/dao/card_dao.dart';
 
 abstract class CardRepository {
   Future<Either<Failure, List<Flashcard>>> getCardsForDeck(String deckId);
@@ -10,7 +11,7 @@ abstract class CardRepository {
 }
 
 class LocalCardRepository implements CardRepository {
-  final dynamic _cardDao;
+  final CardDao _cardDao;
 
   LocalCardRepository(this._cardDao);
 

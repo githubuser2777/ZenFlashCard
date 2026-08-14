@@ -29,6 +29,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
+
+    _checkHasSeenWelcome();
+  }
+
+  Future<void> _checkHasSeenWelcome() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final hasSeen = prefs.getBool(kHasSeenWelcomeKey) ?? false;
+      if (hasSeen && mounted) {
+        context.go('/');
+      }
+    } catch (_) {}
   }
 
   @override

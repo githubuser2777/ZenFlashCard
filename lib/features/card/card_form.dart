@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/models/flashcard.dart';
 import '../../shared/components/zen_button.dart';
+import '../deck/deck_viewmodel.dart';
 import 'card_viewmodel.dart';
 
 class CardForm extends StatefulWidget {
@@ -65,7 +66,10 @@ class _CardFormState extends State<CardForm> {
       );
 
       await cardVM.addCard(card);
-      if (mounted) context.pop();
+      if (mounted) {
+        context.read<DeckViewModel>().loadDecks();
+        context.pop();
+      }
     }
   }
 

@@ -2,6 +2,10 @@ import 'package:fpdart/fpdart.dart';
 import '../utils/failure.dart';
 import '../models/deck.dart';
 import '../models/study_log.dart';
+import '../database/dao/deck_dao.dart';
+import '../database/dao/card_dao.dart';
+import '../database/dao/study_log_dao.dart';
+import '../database/dao/review_history_dao.dart';
 
 abstract class StatsRepository {
   Future<Either<Failure, List<Deck>>> getAllDecks();
@@ -11,10 +15,10 @@ abstract class StatsRepository {
 }
 
 class LocalStatsRepository implements StatsRepository {
-  final dynamic _deckDao;
-  final dynamic _cardDao;
-  final dynamic _studyLogDao;
-  final dynamic _reviewHistoryDao;
+  final DeckDao _deckDao;
+  final CardDao _cardDao;
+  final StudyLogDao _studyLogDao;
+  final ReviewHistoryDao _reviewHistoryDao;
 
   LocalStatsRepository(
       this._deckDao, this._cardDao, this._studyLogDao, this._reviewHistoryDao);

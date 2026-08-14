@@ -76,31 +76,34 @@ class StudyViewModel extends ChangeNotifier {
     );
 
     final updateResult = await _repository.updateCard(updatedCard);
+    if (updateResult.isLeft()) {
+      _error = updateResult.getLeft().toNullable()?.message;
+      notifyListeners();
+      return;
+    }
 
-    updateResult.fold((failure) => _error = failure.message, (_) async {
-      // Log review
-      final history = ReviewHistory(
-        id: _uuid.v4(),
-        cardId: card.id,
-        deckId: card.deckId,
-        quality: quality,
-        reviewedAt: DateTime.now().millisecondsSinceEpoch,
-      );
-      final logResult = await _repository.logReview(history);
+    final history = ReviewHistory(
+      id: _uuid.v4(),
+      cardId: card.id,
+      deckId: card.deckId,
+      quality: quality,
+      reviewedAt: DateTime.now().millisecondsSinceEpoch,
+    );
+    final logResult = await _repository.logReview(history);
+    if (logResult.isLeft()) {
+      _error = logResult.getLeft().toNullable()?.message;
+    }
 
-      logResult.fold((failure) => _error = failure.message, (_) async {
-        _studiedCount++;
-        if (quality >= 3) {
-          _correctCount++;
-        }
+    _studiedCount++;
+    if (quality >= 3) {
+      _correctCount++;
+    }
 
-        _currentIndex++;
+    _currentIndex++;
 
-        if (isFinished) {
-          await _finishSession(card.deckId);
-        }
-      });
-    });
+    if (isFinished) {
+      await _finishSession(card.deckId);
+    }
 
     notifyListeners();
   }

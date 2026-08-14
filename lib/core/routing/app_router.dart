@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../features/welcome/welcome_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/deck/deck_detail_screen.dart';
 import '../../features/deck/deck_form.dart';
+import '../../features/deck/deck_viewmodel.dart';
 import '../../features/card/card_form.dart';
 import '../../features/study/study_screen.dart';
 import '../../features/study/quiz_screen.dart';
@@ -41,6 +43,27 @@ CustomTransitionPage<void> _buildZenTransition({
   );
 }
 
+Deck _resolveDeck(BuildContext context, GoRouterState state) {
+  if (state.extra is Deck) {
+    return state.extra as Deck;
+  }
+  final deckId = state.pathParameters['id'] ?? '';
+  try {
+    final deckVM = Provider.of<DeckViewModel>(context, listen: false);
+    for (final d in deckVM.decks) {
+      if (d.id == deckId) return d;
+    }
+  } catch (_) {}
+
+  return Deck(
+    id: deckId,
+    name: 'Deck',
+    languageFront: 'en',
+    languageBack: 'vi',
+    createdAt: DateTime.now().millisecondsSinceEpoch,
+  );
+}
+
 final appRouter = GoRouter(
   initialLocation: '/welcome',
   routes: [
@@ -71,7 +94,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/deck/:id',
       pageBuilder: (context, state) {
-        final deck = state.extra as Deck;
+        final deck = _resolveDeck(context, state);
         return _buildZenTransition(
           context: context,
           state: state,
@@ -93,7 +116,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/deck/:id/study',
       pageBuilder: (context, state) {
-        final deck = state.extra as Deck;
+        final deck = _resolveDeck(context, state);
         return _buildZenTransition(
           context: context,
           state: state,
@@ -104,7 +127,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/deck/:id/quiz',
       pageBuilder: (context, state) {
-        final deck = state.extra as Deck;
+        final deck = _resolveDeck(context, state);
         return _buildZenTransition(
           context: context,
           state: state,
@@ -115,9 +138,13 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/session_result',
       pageBuilder: (context, state) {
-        final data = state.extra as Map<String, dynamic>;
-        final correctCount = data['correctCount'] as int;
-        final totalCount = data['totalCount'] as int;
+        int correctCount = 0;
+        int totalCount = 0;
+        if (state.extra is Map<String, dynamic>) {
+          final data = state.extra as Map<String, dynamic>;
+          correctCount = data['correctCount'] as int? ?? 0;
+          totalCount = data['totalCount'] as int? ?? 0;
+        }
         return _buildZenTransition(
           context: context,
           state: state,

@@ -3,6 +3,9 @@ import '../utils/failure.dart';
 import '../models/flashcard.dart';
 import '../models/study_log.dart';
 import '../models/review_history.dart';
+import '../database/dao/card_dao.dart';
+import '../database/dao/study_log_dao.dart';
+import '../database/dao/review_history_dao.dart';
 
 abstract class StudyRepository {
   Future<Either<Failure, List<Flashcard>>> getCardsDueToday(String deckId);
@@ -12,9 +15,9 @@ abstract class StudyRepository {
 }
 
 class LocalStudyRepository implements StudyRepository {
-  final dynamic _cardDao;
-  final dynamic _studyLogDao;
-  final dynamic _reviewHistoryDao;
+  final CardDao _cardDao;
+  final StudyLogDao _studyLogDao;
+  final ReviewHistoryDao _reviewHistoryDao;
 
   LocalStudyRepository(
       this._cardDao, this._studyLogDao, this._reviewHistoryDao);

@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../shared/components/custom_bottom_nav.dart';
 import '../../shared/components/deck_card.dart';
 import '../../shared/components/empty_state.dart';
 import '../../shared/theme/app_colors.dart';
@@ -23,8 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       appBar: _currentIndex == 0
           ? AppBar(
@@ -81,50 +80,16 @@ class _HomeScreenState extends State<HomeScreen> {
               )
               .fadeIn(duration: 250.ms)
           : null,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.bgSurface : AppColors.lightBgSurface,
-          border: Border(
-            top: BorderSide(
-              color: isDark
-                  ? AppColors.divider.withValues(alpha: 0.4)
-                  : AppColors.divider.withValues(alpha: 0.15),
-              width: 1,
-            ),
-          ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: AppColors.primaryLight,
-          unselectedItemColor: AppColors.textSecondary,
-          onTap: (index) {
-            if (_currentIndex != index) {
-              HapticFeedback.lightImpact();
-              setState(() {
-                _currentIndex = index;
-              });
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(LucideIcons.library),
-              activeIcon: Icon(LucideIcons.bookMarked),
-              label: 'Decks',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(LucideIcons.barChart2),
-              activeIcon: Icon(LucideIcons.barChart3),
-              label: 'Stats',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(LucideIcons.settings),
-              activeIcon: Icon(LucideIcons.settings2),
-              label: 'Settings',
-            ),
-          ],
-        ),
+      bottomNavigationBar: CustomBottomNav(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (_currentIndex != index) {
+            HapticFeedback.lightImpact();
+            setState(() {
+              _currentIndex = index;
+            });
+          }
+        },
       ),
     );
   }

@@ -63,12 +63,17 @@ class QuizViewModel extends ChangeNotifier {
     final correct = currentCard!.back;
     _correctOption = correct;
 
-    final otherCards = _allCards.where((c) => c.id != currentCard!.id).toList();
+    // Filter cards with different definitions to avoid duplicate choices
+    final otherCards = _allCards.where((c) => c.back != correct).toList();
     otherCards.shuffle(Random());
 
-    final wrongOptions = otherCards.take(3).map((c) => c.back).toList();
+    final uniqueWrongSet = <String>{};
+    for (var card in otherCards) {
+      uniqueWrongSet.add(card.back);
+      if (uniqueWrongSet.length >= 3) break;
+    }
 
-    _currentOptions = [correct, ...wrongOptions];
+    _currentOptions = [correct, ...uniqueWrongSet];
     _currentOptions.shuffle(Random());
     _selectedOption = null;
   }
