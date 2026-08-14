@@ -1,29 +1,48 @@
 import 'package:flutter/foundation.dart';
 import '../../core/models/deck.dart';
-import '../../core/database/dao/deck_dao.dart';
-import '../../core/database/dao/card_dao.dart';
+import '../../core/repositories/deck_repository.dart';
 
 class DeckViewModel extends ChangeNotifier {
-  final DeckDao _deckDao = DeckDao();
-  final CardDao _cardDao = CardDao();
+  final DeckRepository _repository;
+
+  DeckViewModel(this._repository);
 
   List<Deck> _decks = [];
-  Map<String, int> _dueCounts = {};
+  final Map<String, int> _dueCounts = {};
   bool _isLoading = false;
+  String? _error;
 
   List<Deck> get decks => _decks;
   bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  void _setError(String? message) {
+    _error = message;
+  }
 
   Future<void> loadDecks() async {
     _isLoading = true;
+    _setError(null);
     notifyListeners();
 
-    _decks = await _deckDao.readAll();
+    final result = await _repository.getAllDecks();
     
-    // Load due counts for each deck
-    for (var deck in _decks) {
-      _dueCounts[deck.id] = await _cardDao.getDueCardCountForDeck(deck.id);
-    }
+    await result.fold(
+      (failure) async {
+        _setError(failure.message);
+      },
+      (decks) async {
+        _decks = decks;
+        // Load due counts for each deck
+        for (var deck in _decks) {
+          final countResult = await _repository.getDueCount(deck.id);
+          countResult.fold(
+            (failure) => _dueCounts[deck.id] = 0,
+            (count) => _dueCounts[deck.id] = count,
+          );
+        }
+      },
+    );
 
     _isLoading = false;
     notifyListeners();
@@ -34,17 +53,38 @@ class DeckViewModel extends ChangeNotifier {
   }
 
   Future<void> addDeck(Deck deck) async {
-    await _deckDao.create(deck);
-    await loadDecks();
+    _setError(null);
+    final result = await _repository.addDeck(deck);
+    result.fold(
+      (failure) {
+        _setError(failure.message);
+        notifyListeners();
+      },
+      (_) => loadDecks(),
+    );
   }
 
   Future<void> updateDeck(Deck deck) async {
-    await _deckDao.update(deck);
-    await loadDecks();
+    _setError(null);
+    final result = await _repository.updateDeck(deck);
+    result.fold(
+      (failure) {
+        _setError(failure.message);
+        notifyListeners();
+      },
+      (_) => loadDecks(),
+    );
   }
 
   Future<void> deleteDeck(String id) async {
-    await _deckDao.delete(id);
-    await loadDecks();
+    _setError(null);
+    final result = await _repository.deleteDeck(id);
+    result.fold(
+      (failure) {
+        _setError(failure.message);
+        notifyListeners();
+      },
+      (_) => loadDecks(),
+    );
   }
 }

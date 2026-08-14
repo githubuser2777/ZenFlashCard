@@ -11,7 +11,7 @@ abstract class AppColors {
 
   // Text Colors (WCAG AA Compliant)
   static const Color textPrimary = Color(0xFFF8FAFC);  // Trắng
-  static const Color textSecondary = Color(0xFF94A3B8);// Xám xanh
+  static const Color textSecondary = Color(0xFFCBD5E1);// Xám sáng
   static const Color textCaption = Color(0xFFA0AEC0);  // Xám sáng (Pass contrast 5.2:1 ở 11sp)
 
   // Dividers & Borders

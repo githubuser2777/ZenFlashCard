@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/models/flashcard.dart';
@@ -22,6 +23,7 @@ class _CardFormState extends State<CardForm> {
 
   void _save() async {
     if (_formKey.currentState!.validate()) {
+      HapticFeedback.lightImpact();
       setState(() => _isChecking = true);
       
       final cardVM = context.read<CardViewModel>();

@@ -12,7 +12,6 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.primaryLight,
         surface: AppColors.bgSurface,
-        background: AppColors.bgMain,
       ),
       textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
         displayLarge: AppTypography.display,
@@ -22,12 +21,12 @@ class AppTheme {
         labelLarge: AppTypography.label,
         bodySmall: AppTypography.caption,
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: AppTypography.headline,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.bgSurface,
@@ -83,7 +82,6 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.primaryLight,
         surface: AppColors.lightBgSurface,
-        background: AppColors.lightBgMain,
       ),
       textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme).copyWith(
         displayLarge: AppTypography.display.copyWith(color: AppColors.lightTextPrimary),
@@ -138,7 +136,7 @@ class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(
-        color: AppColors.divider.withOpacity(0.1),
+        color: AppColors.divider.withValues(alpha: 0.1),
         thickness: 1,
         space: 1,
       ),

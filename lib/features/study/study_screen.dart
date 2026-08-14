@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/models/deck.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/components/progress_bar.dart';
-import '../../shared/components/3d_flip_card.dart';
+import '../../shared/components/flip_card_3d.dart';
 import 'study_viewmodel.dart';
 import '../deck/deck_viewmodel.dart';
 import 'session_result_screen.dart';
@@ -58,9 +59,12 @@ class _StudyScreenState extends State<StudyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
+        leading: Semantics(
+          label: 'Close study session',
+          child: IconButton(
+            icon: const Icon(LucideIcons.x),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
         title: Consumer<StudyViewModel>(
           builder: (context, studyVM, _) {
@@ -111,17 +115,22 @@ class _StudyScreenState extends State<StudyScreen> {
                 Expanded(
                   flex: 1,
                   child: AnimatedOpacity(
-                    opacity: _isBackSide ? 1.0 : 0.3,
+                    opacity: _isBackSide ? 1.0 : 0.0, // Zen: completely hidden before flip
                     duration: const Duration(milliseconds: 300),
                     child: IgnorePointer(
                       ignoring: !_isBackSide,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildRatingBtn('😅 Hard', AppColors.rateHard, () => _onRate(0)),
-                          _buildRatingBtn('😊 OK', AppColors.rateOk, () => _onRate(3)),
-                          _buildRatingBtn('😎 Easy', AppColors.rateEasy, () => _onRate(5)),
-                        ],
+                      child: AnimatedSlide(
+                        offset: _isBackSide ? Offset.zero : const Offset(0, 0.4),
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeOutBack,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildRatingBtn('Hard', AppColors.rateHard, () => _onRate(0)),
+                            _buildRatingBtn('OK', AppColors.rateOk, () => _onRate(3)),
+                            _buildRatingBtn('Easy', AppColors.rateEasy, () => _onRate(5)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -151,25 +160,42 @@ class _StudyScreenState extends State<StudyScreen> {
           Text(
             text,
             textAlign: TextAlign.center,
-            style: isFront ? AppTypography.display : AppTypography.headline.copyWith(color: const Color(0xFFCBD5E1)),
+            style: isFront ? AppTypography.display : AppTypography.headline.copyWith(color: AppColors.textSecondary),
           ),
+          if (isFront && !_isBackSide) ...[
+            const Spacer(),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(LucideIcons.pointer, size: 16, color: AppColors.textSecondary),
+                SizedBox(width: 8),
+                Text('Tap to flip', style: AppTypography.caption),
+              ],
+            ),
+          ]
         ],
       ),
     );
   }
 
   Widget _buildRatingBtn(String label, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.5)),
+    return Semantics(
+      label: 'Rate $label',
+      button: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48, minWidth: 80),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
+          ),
+          alignment: Alignment.center,
+          child: Text(label, style: AppTypography.label.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
         ),
-        child: Text(label, style: AppTypography.label.copyWith(color: color, fontWeight: FontWeight.bold)),
       ),
     );
   }

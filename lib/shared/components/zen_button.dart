@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_theme.dart'; // To use AppTypography indirectly
 
 enum ZenButtonVariant { filled, outlined, text }
 
@@ -31,10 +31,16 @@ class _ZenButtonState extends State<ZenButton> with SingleTickerProviderStateMix
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 150),
+      reverseDuration: const Duration(milliseconds: 250),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    // Use an easeOutBack curve to simulate a springy bounce on release
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.easeOutBack,
+      ),
     );
   }
 
@@ -45,15 +51,28 @@ class _ZenButtonState extends State<ZenButton> with SingleTickerProviderStateMix
   }
 
   void _onTapDown(TapDownDetails details) {
-    if (widget.onPressed != null) _controller.forward();
+    if (widget.onPressed != null) {
+      _controller.forward();
+    }
   }
 
   void _onTapUp(TapUpDetails details) {
-    if (widget.onPressed != null) _controller.reverse();
+    if (widget.onPressed != null) {
+      _controller.reverse();
+    }
   }
 
   void _onTapCancel() {
-    if (widget.onPressed != null) _controller.reverse();
+    if (widget.onPressed != null) {
+      _controller.reverse();
+    }
+  }
+
+  void _onTap() {
+    if (widget.onPressed != null) {
+      HapticFeedback.lightImpact(); // Add haptic feedback
+      widget.onPressed!();
+    }
   }
 
   @override
@@ -62,12 +81,17 @@ class _ZenButtonState extends State<ZenButton> with SingleTickerProviderStateMix
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
-      onTap: widget.onPressed,
+      onTap: _onTap,
+      // Increase hit test area for accessibility
+      behavior: HitTestBehavior.opaque,
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
+          // Ensure minimum touch target of 48dp for accessibility
+          constraints: const BoxConstraints(minHeight: 48),
           decoration: _getDecoration(),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+          alignment: Alignment.center,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,

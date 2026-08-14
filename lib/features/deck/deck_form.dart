@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/models/deck.dart';
@@ -21,6 +22,7 @@ class _DeckFormState extends State<DeckForm> {
 
   void _save() {
     if (_formKey.currentState!.validate()) {
+      HapticFeedback.lightImpact();
       final deck = Deck(
         id: const Uuid().v4(),
         name: _nameController.text.trim(),

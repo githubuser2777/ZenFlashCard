@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../shared/components/custom_bottom_nav.dart';
 import '../../shared/components/deck_card.dart';
+import '../../shared/components/empty_state.dart';
 import '../deck/deck_viewmodel.dart';
 import '../stats/stats_screen.dart';
 import '../settings/settings_screen.dart';
@@ -25,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('ZenFlashCards'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(LucideIcons.search),
             onPressed: () {},
           )
         ],
@@ -33,13 +36,15 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _buildBody(),
       floatingActionButton: _currentIndex == 0 ? FloatingActionButton(
         onPressed: () {
+          HapticFeedback.lightImpact();
           Navigator.push(context, MaterialPageRoute(builder: (_) => const DeckForm()));
         },
-        child: const Icon(Icons.add),
+        child: const Icon(LucideIcons.plus),
       ) : null,
       bottomNavigationBar: CustomBottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {
+          HapticFeedback.lightImpact();
           setState(() {
             _currentIndex = index;
           });
@@ -70,8 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         final decks = deckVM.decks;
         if (decks.isEmpty) {
-          return const Center(
-            child: Text('No decks yet. Tap + to add one.'),
+          return const EmptyState(
+            message: 'No decks available\nTap + to create your first deck',
+            illustration: Icon(LucideIcons.library, size: 80, color: Colors.grey),
           );
         }
 

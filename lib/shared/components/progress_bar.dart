@@ -8,24 +8,28 @@ class ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 4,
-      width: double.infinity,
-      color: AppColors.divider,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Row(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                width: constraints.maxWidth * progress,
-                height: 4,
-                color: AppColors.primary,
-              ),
-            ],
-          );
-        },
+    return Semantics(
+      label: 'Progress',
+      value: '${(progress * 100).round()}%',
+      child: Container(
+        height: 4,
+        width: double.infinity,
+        color: AppColors.divider,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Row(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  width: constraints.maxWidth * progress,
+                  height: 4,
+                  color: AppColors.primary,
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

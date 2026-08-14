@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -18,18 +18,15 @@ class CustomBottomNav extends StatelessWidget {
       onTap: onTap,
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
+          icon: Icon(LucideIcons.home),
           label: '',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart_outlined),
-          activeIcon: Icon(Icons.bar_chart),
+          icon: Icon(LucideIcons.barChart2),
           label: '',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings_outlined),
-          activeIcon: Icon(Icons.settings),
+          icon: Icon(LucideIcons.settings),
           label: '',
         ),
       ],

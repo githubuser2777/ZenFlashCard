@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/models/deck.dart';
 import '../theme/app_colors.dart';
 
@@ -23,7 +25,10 @@ class DeckCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: onTap,
-        onLongPress: onLongPress,
+        onLongPress: () {
+          HapticFeedback.lightImpact();
+          onLongPress();
+        },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -51,7 +56,7 @@ class DeckCard extends StatelessWidget {
               const SizedBox(width: 16),
               if (isCompleted)
                 const Icon(
-                  Icons.check_circle,
+                  LucideIcons.checkCircle2,
                   color: AppColors.rateEasy,
                   size: 24,
                 )

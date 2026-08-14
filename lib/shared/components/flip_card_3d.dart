@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import 'package:flutter/services.dart';
 
 /// 3D Flip Card Component cho màn hình Study Flashcard
 /// Đảm bảo animation lật 3D xoay quanh trục Y trong 400ms (easeInOut)
@@ -30,15 +30,16 @@ class _FlipCard3DState extends State<FlipCard3D> with SingleTickerProviderStateM
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 500),
     );
     _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack), // Spring-like feel
     );
   }
 
   void flip() {
     if (_controller.isAnimating) return;
+    HapticFeedback.lightImpact();
     if (_isFront) {
       _controller.forward();
     } else {
