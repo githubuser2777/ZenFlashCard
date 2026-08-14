@@ -26,7 +26,7 @@ class DeckViewModel extends ChangeNotifier {
     notifyListeners();
 
     final result = await _repository.getAllDecks();
-    
+
     await result.fold(
       (failure) async {
         _setError(failure.message);

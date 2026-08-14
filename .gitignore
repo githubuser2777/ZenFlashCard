@@ -46,3 +46,14 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Release signing keys — NEVER commit these
+**/android/key.properties
+*.jks
+*.keystore
+
+# Gradle & Kotlin caches
+.gradle/
+**/android/.gradle/
+**/android/.kotlin/
+

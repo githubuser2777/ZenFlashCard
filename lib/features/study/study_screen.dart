@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/models/deck.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/components/progress_bar.dart';
 import '../../shared/components/flip_card_3d.dart';
 import 'study_viewmodel.dart';
 import '../deck/deck_viewmodel.dart';
-import 'session_result_screen.dart';
 
 class StudyScreen extends StatefulWidget {
   final Deck deck;
@@ -32,26 +32,21 @@ class _StudyScreenState extends State<StudyScreen> {
   void _onRate(int quality) async {
     final studyVM = context.read<StudyViewModel>();
     await studyVM.answerCard(quality);
-    
+
     // Refresh deck counts
     if (mounted) {
       context.read<DeckViewModel>().loadDecks();
     }
-    
+
     setState(() {
       _isBackSide = false;
     });
 
     if (studyVM.isFinished && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SessionResultScreen(
-            correctCount: studyVM.correctCount,
-            totalCount: studyVM.studiedCount,
-          ),
-        ),
-      );
+      context.pushReplacement('/session_result', extra: {
+        'correctCount': studyVM.correctCount,
+        'totalCount': studyVM.studiedCount,
+      });
     }
   }
 
@@ -63,21 +58,24 @@ class _StudyScreenState extends State<StudyScreen> {
           label: 'Close study session',
           child: IconButton(
             icon: const Icon(LucideIcons.x),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
           ),
         ),
         title: Consumer<StudyViewModel>(
           builder: (context, studyVM, _) {
             final total = studyVM.dueCards.length;
             final current = studyVM.currentIndex + 1;
-            return Text('$current / ${total == 0 ? 1 : total}', style: const TextStyle(fontSize: 16));
+            return Text('$current / ${total == 0 ? 1 : total}',
+                style: const TextStyle(fontSize: 16));
           },
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
           child: Consumer<StudyViewModel>(
             builder: (context, studyVM, _) {
-              final progress = studyVM.dueCards.isEmpty ? 0.0 : studyVM.currentIndex / studyVM.dueCards.length;
+              final progress = studyVM.dueCards.isEmpty
+                  ? 0.0
+                  : studyVM.currentIndex / studyVM.dueCards.length;
               return ProgressBar(progress: progress);
             },
           ),
@@ -107,28 +105,36 @@ class _StudyScreenState extends State<StudyScreen> {
                         _isBackSide = isBack;
                       });
                     },
-                    front: _buildCardSide(card.front, widget.deck.languageFront, isFront: true),
-                    back: _buildCardSide(card.back, widget.deck.languageBack, isFront: false),
+                    front: _buildCardSide(card.front, widget.deck.languageFront,
+                        isFront: true),
+                    back: _buildCardSide(card.back, widget.deck.languageBack,
+                        isFront: false),
                   ),
                 ),
                 const SizedBox(height: 40),
                 Expanded(
                   flex: 1,
                   child: AnimatedOpacity(
-                    opacity: _isBackSide ? 1.0 : 0.0, // Zen: completely hidden before flip
+                    opacity: _isBackSide
+                        ? 1.0
+                        : 0.0, // Zen: completely hidden before flip
                     duration: const Duration(milliseconds: 300),
                     child: IgnorePointer(
                       ignoring: !_isBackSide,
                       child: AnimatedSlide(
-                        offset: _isBackSide ? Offset.zero : const Offset(0, 0.4),
+                        offset:
+                            _isBackSide ? Offset.zero : const Offset(0, 0.4),
                         duration: const Duration(milliseconds: 400),
                         curve: Curves.easeOutBack,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildRatingBtn('Hard', AppColors.rateHard, () => _onRate(0)),
-                            _buildRatingBtn('OK', AppColors.rateOk, () => _onRate(3)),
-                            _buildRatingBtn('Easy', AppColors.rateEasy, () => _onRate(5)),
+                            _buildRatingBtn(
+                                'Hard', AppColors.rateHard, () => _onRate(0)),
+                            _buildRatingBtn(
+                                'OK', AppColors.rateOk, () => _onRate(3)),
+                            _buildRatingBtn(
+                                'Easy', AppColors.rateEasy, () => _onRate(5)),
                           ],
                         ),
                       ),
@@ -150,24 +156,32 @@ class _StudyScreenState extends State<StudyScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 16, offset: Offset(0, 4))],
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 16, offset: Offset(0, 4))
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(lang.toUpperCase(), style: AppTypography.label.copyWith(color: AppColors.textSecondary)),
+          Text(lang.toUpperCase(),
+              style:
+                  AppTypography.label.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: isFront ? AppTypography.display : AppTypography.headline.copyWith(color: AppColors.textSecondary),
+            style: isFront
+                ? AppTypography.display
+                : AppTypography.headline
+                    .copyWith(color: AppColors.textSecondary),
           ),
           if (isFront && !_isBackSide) ...[
             const Spacer(),
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(LucideIcons.pointer, size: 16, color: AppColors.textSecondary),
+                Icon(LucideIcons.pointer,
+                    size: 16, color: AppColors.textSecondary),
                 SizedBox(width: 8),
                 Text('Tap to flip', style: AppTypography.caption),
               ],
@@ -194,7 +208,9 @@ class _StudyScreenState extends State<StudyScreen> {
             border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
           ),
           alignment: Alignment.center,
-          child: Text(label, style: AppTypography.label.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+          child: Text(label,
+              style: AppTypography.label.copyWith(
+                  color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
         ),
       ),
     );

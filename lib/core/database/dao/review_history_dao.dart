@@ -23,8 +23,9 @@ class ReviewHistoryDao {
 
   Future<Map<int, int>> getQualityDistribution() async {
     final db = await dbHelper.database;
-    final result = await db.rawQuery('SELECT quality, COUNT(*) as count FROM review_history GROUP BY quality');
-    
+    final result = await db.rawQuery(
+        'SELECT quality, COUNT(*) as count FROM review_history GROUP BY quality');
+
     Map<int, int> distribution = {0: 0, 3: 0, 5: 0};
     for (var row in result) {
       final quality = row['quality'] as int;

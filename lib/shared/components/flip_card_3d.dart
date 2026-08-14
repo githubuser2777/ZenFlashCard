@@ -20,7 +20,8 @@ class FlipCard3D extends StatefulWidget {
   State<FlipCard3D> createState() => _FlipCard3DState();
 }
 
-class _FlipCard3DState extends State<FlipCard3D> with SingleTickerProviderStateMixin {
+class _FlipCard3DState extends State<FlipCard3D>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   bool _isFront = true;
@@ -33,7 +34,8 @@ class _FlipCard3DState extends State<FlipCard3D> with SingleTickerProviderStateM
       duration: const Duration(milliseconds: 500),
     );
     _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack), // Spring-like feel
+      CurvedAnimation(
+          parent: _controller, curve: Curves.easeOutBack), // Spring-like feel
     );
   }
 

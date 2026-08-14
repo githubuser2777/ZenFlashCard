@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/models/flashcard.dart';
 import '../../shared/components/zen_button.dart';
 import 'card_viewmodel.dart';
@@ -25,13 +26,14 @@ class _CardFormState extends State<CardForm> {
     if (_formKey.currentState!.validate()) {
       HapticFeedback.lightImpact();
       setState(() => _isChecking = true);
-      
+
       final cardVM = context.read<CardViewModel>();
       final front = _frontController.text.trim();
       final back = _backController.text.trim();
 
-      final isDuplicate = await cardVM.checkDuplicate(widget.deckId, front, back);
-      
+      final isDuplicate =
+          await cardVM.checkDuplicate(widget.deckId, front, back);
+
       if (!mounted) return;
       setState(() => _isChecking = false);
 
@@ -40,10 +42,13 @@ class _CardFormState extends State<CardForm> {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Duplicate Card'),
-            content: const Text('This exact card already exists in this deck. Add anyway?'),
+            content: const Text(
+                'This exact card already exists in this deck. Add anyway?'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
+              TextButton(
+                  onPressed: () => ctx.pop(false), child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () => ctx.pop(true), child: const Text('Add')),
             ],
           ),
         );
@@ -60,7 +65,7 @@ class _CardFormState extends State<CardForm> {
       );
 
       await cardVM.addCard(card);
-      if (mounted) Navigator.pop(context);
+      if (mounted) context.pop();
     }
   }
 
@@ -84,15 +89,21 @@ class _CardFormState extends State<CardForm> {
             children: [
               TextFormField(
                 controller: _frontController,
-                decoration: const InputDecoration(labelText: 'Front (Word)', border: OutlineInputBorder()),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
+                maxLength: 1000,
+                decoration: const InputDecoration(
+                    labelText: 'Front (Word)', border: OutlineInputBorder()),
+                validator: (val) =>
+                    val == null || val.trim().isEmpty ? 'Required' : null,
                 maxLines: 2,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _backController,
-                decoration: const InputDecoration(labelText: 'Back (Meaning)', border: OutlineInputBorder()),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
+                maxLength: 2000,
+                decoration: const InputDecoration(
+                    labelText: 'Back (Meaning)', border: OutlineInputBorder()),
+                validator: (val) =>
+                    val == null || val.trim().isEmpty ? 'Required' : null,
                 maxLines: 3,
               ),
               const SizedBox(height: 32),

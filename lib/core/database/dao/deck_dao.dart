@@ -14,7 +14,14 @@ class DeckDao {
     final db = await dbHelper.database;
     final maps = await db.query(
       'decks',
-      columns: ['id', 'name', 'description', 'language_front', 'language_back', 'created_at'],
+      columns: [
+        'id',
+        'name',
+        'description',
+        'language_front',
+        'language_back',
+        'created_at'
+      ],
       where: 'id = ?',
       whereArgs: [id],
     );

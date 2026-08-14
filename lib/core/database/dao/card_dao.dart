@@ -50,14 +50,17 @@ class CardDao {
 
   Future<int> getCardCountForDeck(String deckId) async {
     final db = await dbHelper.database;
-    final result = await db.rawQuery('SELECT COUNT(*) FROM flashcards WHERE deck_id = ?', [deckId]);
+    final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM flashcards WHERE deck_id = ?', [deckId]);
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
   Future<int> getDueCardCountForDeck(String deckId) async {
     final db = await dbHelper.database;
     final nowMs = DateTime.now().millisecondsSinceEpoch;
-    final result = await db.rawQuery('SELECT COUNT(*) FROM flashcards WHERE deck_id = ? AND next_review <= ?', [deckId, nowMs]);
+    final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM flashcards WHERE deck_id = ? AND next_review <= ?',
+        [deckId, nowMs]);
     return Sqflite.firstIntValue(result) ?? 0;
   }
 

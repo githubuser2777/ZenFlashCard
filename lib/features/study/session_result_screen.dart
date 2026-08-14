@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:go_router/go_router.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/components/zen_button.dart';
 
@@ -16,7 +17,7 @@ class SessionResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double percentage = totalCount == 0 ? 0 : (correctCount / totalCount);
-    
+
     String message = "Keep it up!";
     IconData messageIcon = LucideIcons.sprout;
     if (percentage >= 0.8) {
@@ -33,7 +34,7 @@ class SessionResultScreen extends StatelessWidget {
           label: 'Close result',
           child: IconButton(
             icon: const Icon(LucideIcons.x),
-            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+            onPressed: () => context.go('/'),
           ),
         ),
         title: const Text('Session Result'),
@@ -84,18 +85,22 @@ class SessionResultScreen extends StatelessWidget {
               children: [
                 const Icon(LucideIcons.checkCircle2, color: AppColors.rateEasy),
                 const SizedBox(width: 8),
-                Text('Correct: $correctCount', style: AppTypography.title.copyWith(color: AppColors.rateEasy)),
+                Text('Correct: $correctCount',
+                    style: AppTypography.title
+                        .copyWith(color: AppColors.rateEasy)),
                 const SizedBox(width: 32),
                 const Icon(LucideIcons.xCircle, color: AppColors.rateHard),
                 const SizedBox(width: 8),
-                Text('Incorrect: ${totalCount - correctCount}', style: AppTypography.title.copyWith(color: AppColors.rateHard)),
+                Text('Incorrect: ${totalCount - correctCount}',
+                    style: AppTypography.title
+                        .copyWith(color: AppColors.rateHard)),
               ],
             ),
             const SizedBox(height: 60),
             ZenButton(
               label: 'Done',
               onPressed: () {
-                Navigator.popUntil(context, (route) => route.isFirst);
+                context.go('/');
               },
             ),
           ],

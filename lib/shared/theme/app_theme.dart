@@ -13,7 +13,8 @@ class AppTheme {
         secondary: AppColors.primaryLight,
         surface: AppColors.bgSurface,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
+      textTheme:
+          GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
         displayLarge: AppTypography.display,
         titleLarge: AppTypography.headline,
         titleMedium: AppTypography.title,
@@ -83,19 +84,25 @@ class AppTheme {
         secondary: AppColors.primaryLight,
         surface: AppColors.lightBgSurface,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme).copyWith(
-        displayLarge: AppTypography.display.copyWith(color: AppColors.lightTextPrimary),
-        titleLarge: AppTypography.headline.copyWith(color: AppColors.lightTextPrimary),
-        titleMedium: AppTypography.title.copyWith(color: AppColors.lightTextPrimary),
+      textTheme:
+          GoogleFonts.interTextTheme(ThemeData.light().textTheme).copyWith(
+        displayLarge:
+            AppTypography.display.copyWith(color: AppColors.lightTextPrimary),
+        titleLarge:
+            AppTypography.headline.copyWith(color: AppColors.lightTextPrimary),
+        titleMedium:
+            AppTypography.title.copyWith(color: AppColors.lightTextPrimary),
         bodyMedium: AppTypography.body.copyWith(color: AppColors.textSecondary),
-        labelLarge: AppTypography.label.copyWith(color: AppColors.textSecondary),
+        labelLarge:
+            AppTypography.label.copyWith(color: AppColors.textSecondary),
         bodySmall: AppTypography.caption,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: AppTypography.headline.copyWith(color: AppColors.lightTextPrimary),
+        titleTextStyle:
+            AppTypography.headline.copyWith(color: AppColors.lightTextPrimary),
         iconTheme: const IconThemeData(color: AppColors.lightTextPrimary),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(

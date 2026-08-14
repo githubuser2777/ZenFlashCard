@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/models/deck.dart';
 import '../../shared/components/zen_button.dart';
 import 'deck_viewmodel.dart';
@@ -33,7 +34,7 @@ class _DeckFormState extends State<DeckForm> {
       );
 
       context.read<DeckViewModel>().addDeck(deck);
-      Navigator.pop(context);
+      context.pop();
     }
   }
 
@@ -59,13 +60,19 @@ class _DeckFormState extends State<DeckForm> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Deck Name', border: OutlineInputBorder()),
-                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                maxLength: 100,
+                decoration: const InputDecoration(
+                    labelText: 'Deck Name', border: OutlineInputBorder()),
+                validator: (val) =>
+                    val == null || val.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descController,
-                decoration: const InputDecoration(labelText: 'Description (Optional)', border: OutlineInputBorder()),
+                maxLength: 500,
+                decoration: const InputDecoration(
+                    labelText: 'Description (Optional)',
+                    border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               Row(
@@ -73,14 +80,20 @@ class _DeckFormState extends State<DeckForm> {
                   Expanded(
                     child: TextFormField(
                       controller: _frontController,
-                      decoration: const InputDecoration(labelText: 'Front Language', border: OutlineInputBorder()),
+                      maxLength: 50,
+                      decoration: const InputDecoration(
+                          labelText: 'Front Language',
+                          border: OutlineInputBorder()),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: TextFormField(
                       controller: _backController,
-                      decoration: const InputDecoration(labelText: 'Back Language', border: OutlineInputBorder()),
+                      maxLength: 50,
+                      decoration: const InputDecoration(
+                          labelText: 'Back Language',
+                          border: OutlineInputBorder()),
                     ),
                   ),
                 ],

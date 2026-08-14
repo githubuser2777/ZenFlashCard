@@ -22,7 +22,8 @@ class ZenButton extends StatefulWidget {
   State<ZenButton> createState() => _ZenButtonState();
 }
 
-class _ZenButtonState extends State<ZenButton> with SingleTickerProviderStateMixin {
+class _ZenButtonState extends State<ZenButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -117,7 +118,7 @@ class _ZenButtonState extends State<ZenButton> with SingleTickerProviderStateMix
 
   BoxDecoration _getDecoration() {
     final bool isDisabled = widget.onPressed == null;
-    
+
     switch (widget.variant) {
       case ZenButtonVariant.filled:
         return BoxDecoration(
