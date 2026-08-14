@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/models/deck.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/components/zen_button.dart';
+import '../../shared/components/empty_state.dart';
 import '../card/card_viewmodel.dart';
 
 class DeckDetailScreen extends StatefulWidget {
@@ -63,6 +65,8 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.deck.name),
@@ -73,7 +77,6 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
               if (value == 'import') {
                 _importCsv(context);
               }
-              // Add edit/delete logic later
             },
             itemBuilder: (BuildContext context) {
               return [
@@ -83,9 +86,14 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
                     children: [
                       const Icon(LucideIcons.download, size: 20),
                       const SizedBox(width: 12),
-                      Text('Import CSV',
-                          style: AppTypography.body
-                              .copyWith(color: AppColors.textPrimary)),
+                      Text(
+                        'Import CSV',
+                        style: AppTypography.body.copyWith(
+                          color: isDark
+                              ? AppColors.textPrimary
+                              : AppColors.lightTextPrimary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -106,10 +114,32 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 12.0),
-                child: Text(
-                    '${widget.deck.languageFront} → ${widget.deck.languageBack} · ${cards.length} cards',
-                    style: AppTypography.body),
+                    horizontal: 20.0, vertical: 10.0),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${widget.deck.languageFront.toUpperCase()} → ${widget.deck.languageBack.toUpperCase()}',
+                        style: AppTypography.label.copyWith(
+                          color: AppColors.primaryLight,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      '·  ${cards.length} cards total',
+                      style: AppTypography.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
               ),
               Padding(
                 padding:
@@ -155,32 +185,74 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
                     ),
                   ],
                 ),
-              ),
-              const Divider(height: 32),
+              ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
+              const Divider(height: 24),
               Expanded(
-                child: ListView.separated(
-                  itemCount: cards.length,
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final card = cards[index];
-                    return ListTile(
-                      title: Text(card.front, style: AppTypography.title),
-                      trailing: Text(card.back, style: AppTypography.body),
-                    );
-                  },
-                ),
+                child: cards.isEmpty
+                    ? const EmptyState(
+                        message:
+                            'No cards in this deck yet.\nTap + or import CSV to add flashcards.',
+                        illustration: Icon(
+                          LucideIcons.copyPlus,
+                          size: 52,
+                          color: AppColors.primaryLight,
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: cards.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final card = cards[index];
+                          return ListTile(
+                            title: Text(
+                              card.front,
+                              style: AppTypography.title.copyWith(
+                                color: isDark
+                                    ? AppColors.textPrimary
+                                    : AppColors.lightTextPrimary,
+                              ),
+                            ),
+                            trailing: Text(
+                              card.back,
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          )
+                              .animate()
+                              .fadeIn(
+                                duration: 250.ms,
+                                delay: (index * 30).clamp(0, 300).ms,
+                              )
+                              .slideY(
+                                begin: 0.1,
+                                end: 0,
+                                duration: 250.ms,
+                                delay: (index * 30).clamp(0, 300).ms,
+                                curve: Curves.easeOutCubic,
+                              );
+                        },
+                      ),
               )
             ],
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'deck_add_card_fab',
         onPressed: () {
           HapticFeedback.lightImpact();
           context.push('/deck/${widget.deck.id}/add_card');
         },
         child: const Icon(LucideIcons.plus),
-      ),
+      )
+          .animate()
+          .scale(duration: 300.ms, curve: Curves.easeOutBack)
+          .fadeIn(duration: 200.ms),
     );
   }
 }

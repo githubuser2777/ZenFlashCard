@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../settings/settings_viewmodel.dart';
 import '../../shared/theme/app_colors.dart';
 
@@ -10,26 +12,43 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: Consumer<SettingsViewModel>(
         builder: (context, settingsVM, child) {
           return ListView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            physics: const BouncingScrollPhysics(),
             children: [
-              Text('Appearance',
-                  style: AppTypography.title
-                      .copyWith(color: AppColors.textSecondary)),
-              const SizedBox(height: 12),
+              Text(
+                'APPEARANCE',
+                style: AppTypography.label.copyWith(
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryLight,
+                  fontSize: 11,
+                ),
+              ),
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color:
+                      isDark ? AppColors.bgSurface : AppColors.lightBgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.divider.withValues(alpha: 0.4)
+                        : AppColors.divider.withValues(alpha: 0.15),
+                  ),
+                  boxShadow: [
                     BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 8,
-                        offset: Offset(0, 2))
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
                   ],
                 ),
                 child: Column(
@@ -65,32 +84,141 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.1, end: 0),
+              const SizedBox(height: 28),
+              Text(
+                'EXPERIENCE',
+                style: AppTypography.label.copyWith(
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryLight,
+                  fontSize: 11,
+                ),
               ),
-              const SizedBox(height: 32),
-              Text('About',
-                  style: AppTypography.title
-                      .copyWith(color: AppColors.textSecondary)),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color:
+                      isDark ? AppColors.bgSurface : AppColors.lightBgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.divider.withValues(alpha: 0.4)
+                        : AppColors.divider.withValues(alpha: 0.15),
+                  ),
+                  boxShadow: [
                     BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 8,
-                        offset: Offset(0, 2))
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
                   ],
                 ),
                 child: ListTile(
-                  leading:
-                      const Icon(LucideIcons.info, color: AppColors.primary),
-                  title: const Text('Version', style: AppTypography.body),
-                  trailing: Text('1.0.0',
-                      style: AppTypography.body
-                          .copyWith(color: AppColors.textSecondary)),
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(LucideIcons.sparkles,
+                        color: AppColors.primaryLight, size: 20),
+                  ),
+                  title: Text(
+                    'Replay Welcome Animation',
+                    style: AppTypography.body.copyWith(
+                      color: isDark
+                          ? AppColors.textPrimary
+                          : AppColors.lightTextPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'View the Zen intro & onboarding',
+                    style: AppTypography.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                  trailing: const Icon(LucideIcons.chevronRight,
+                      size: 18, color: AppColors.textSecondary),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    context.push('/welcome');
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
               )
+                  .animate()
+                  .fadeIn(duration: 350.ms, delay: 100.ms)
+                  .slideY(begin: 0.1, end: 0),
+              const SizedBox(height: 28),
+              Text(
+                'ABOUT',
+                style: AppTypography.label.copyWith(
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryLight,
+                  fontSize: 11,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color:
+                      isDark ? AppColors.bgSurface : AppColors.lightBgSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.divider.withValues(alpha: 0.4)
+                        : AppColors.divider.withValues(alpha: 0.15),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(LucideIcons.info,
+                        color: AppColors.primaryLight, size: 20),
+                  ),
+                  title: Text(
+                    'ZenFlashCards',
+                    style: AppTypography.body.copyWith(
+                      color: isDark
+                          ? AppColors.textPrimary
+                          : AppColors.lightTextPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: const Text('Version 1.0.0+1',
+                      style: AppTypography.caption),
+                  trailing: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text('Pro Max', style: AppTypography.label),
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+              )
+                  .animate()
+                  .fadeIn(duration: 350.ms, delay: 200.ms)
+                  .slideY(begin: 0.1, end: 0),
             ],
           );
         },
@@ -106,17 +234,21 @@ class SettingsScreen extends StatelessWidget {
   }) {
     return ListTile(
       onTap: onTap,
-      leading: Icon(icon,
-          color: isSelected ? AppColors.primary : AppColors.textSecondary),
+      leading: Icon(
+        icon,
+        color: isSelected ? AppColors.primaryLight : AppColors.textSecondary,
+        size: 20,
+      ),
       title: Text(
         title,
         style: AppTypography.body.copyWith(
-          color: isSelected ? AppColors.primary : AppColors.textPrimary,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? AppColors.primaryLight : AppColors.textSecondary,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
       trailing: isSelected
-          ? const Icon(LucideIcons.check, color: AppColors.primary)
+          ? const Icon(LucideIcons.check,
+              color: AppColors.primaryLight, size: 20)
           : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     );

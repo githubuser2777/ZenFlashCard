@@ -4,11 +4,14 @@ import '../theme/app_colors.dart';
 
 enum ZenButtonVariant { filled, outlined, text }
 
+/// Premium interactive Zen button with Spring scale physics, tactile haptics, and a11y support
 class ZenButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
   final ZenButtonVariant variant;
   final Widget? icon;
+  final double? width;
+  final double height;
 
   const ZenButton({
     super.key,
@@ -16,6 +19,8 @@ class ZenButton extends StatefulWidget {
     this.onPressed,
     this.variant = ZenButtonVariant.filled,
     this.icon,
+    this.width,
+    this.height = 48.0,
   });
 
   @override
@@ -32,11 +37,10 @@ class _ZenButtonState extends State<ZenButton>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150),
-      reverseDuration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 120),
+      reverseDuration: const Duration(milliseconds: 200),
     );
-    // Use an easeOutBack curve to simulate a springy bounce on release
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeOut,
@@ -71,45 +75,55 @@ class _ZenButtonState extends State<ZenButton>
 
   void _onTap() {
     if (widget.onPressed != null) {
-      HapticFeedback.lightImpact(); // Add haptic feedback
+      HapticFeedback.lightImpact();
       widget.onPressed!();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      onTap: _onTap,
-      // Increase hit test area for accessibility
-      behavior: HitTestBehavior.opaque,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          // Ensure minimum touch target of 48dp for accessibility
-          constraints: const BoxConstraints(minHeight: 48),
-          decoration: _getDecoration(),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (widget.icon != null) ...[
-                widget.icon!,
-                const SizedBox(width: 8),
-              ],
-              Text(
-                widget.label,
-                style: AppTypography.label.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: _getTextColor(),
-                ),
+    final isEnabled = widget.onPressed != null;
+
+    return Semantics(
+      button: true,
+      enabled: isEnabled,
+      label: widget.label,
+      child: GestureDetector(
+        onTapDown: _onTapDown,
+        onTapUp: _onTapUp,
+        onTapCancel: _onTapCancel,
+        onTap: _onTap,
+        behavior: HitTestBehavior.opaque,
+        child: RepaintBoundary(
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              width: widget.width,
+              constraints: BoxConstraints(minHeight: widget.height),
+              decoration: _getDecoration(),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.icon != null) ...[
+                    widget.icon!,
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    widget.label,
+                    style: AppTypography.label.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: _getTextColor(),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -124,13 +138,22 @@ class _ZenButtonState extends State<ZenButton>
         return BoxDecoration(
           color: isDisabled ? AppColors.divider : AppColors.primary,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: isDisabled
+              ? null
+              : [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.28),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
         );
       case ZenButtonVariant.outlined:
         return BoxDecoration(
           color: Colors.transparent,
           border: Border.all(
             color: isDisabled ? AppColors.divider : AppColors.primary,
-            width: 2,
+            width: 1.8,
           ),
           borderRadius: BorderRadius.circular(12),
         );
@@ -144,14 +167,14 @@ class _ZenButtonState extends State<ZenButton>
 
   Color _getTextColor() {
     final bool isDisabled = widget.onPressed == null;
-    if (isDisabled) return AppColors.textSecondary;
+    if (isDisabled) return AppColors.textSecondary.withValues(alpha: 0.6);
 
     switch (widget.variant) {
       case ZenButtonVariant.filled:
         return AppColors.textPrimary;
       case ZenButtonVariant.outlined:
       case ZenButtonVariant.text:
-        return AppColors.primary;
+        return AppColors.primaryLight;
     }
   }
 }

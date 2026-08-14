@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/models/deck.dart';
 import '../../shared/theme/app_colors.dart';
-import '../../shared/components/progress_bar.dart';
+import '../../shared/components/empty_state.dart';
 import 'quiz_viewmodel.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -29,7 +30,6 @@ class _QuizScreenState extends State<QuizScreen> {
   void _onOptionSelected(String option) async {
     final quizVM = context.read<QuizViewModel>();
     if (quizVM.selectedOption != null) {
-      // If already selected and waiting, tapping again forces next question (Tap to continue)
       if (mounted && quizVM.selectedOption != quizVM.correctOption) {
         _goToNextQuestion(quizVM);
       }
@@ -42,17 +42,14 @@ class _QuizScreenState extends State<QuizScreen> {
 
     if (isCorrect) {
       HapticFeedback.mediumImpact();
-      // Auto-advance after 1.2s
-      await Future.delayed(const Duration(milliseconds: 1200));
+      await Future.delayed(const Duration(milliseconds: 1100));
     } else {
       HapticFeedback.heavyImpact();
-      // Auto-advance after 2.5s or manual tap
-      await Future.delayed(const Duration(milliseconds: 2500));
+      await Future.delayed(const Duration(milliseconds: 2200));
     }
 
     if (!mounted) return;
 
-    // Check if we are still on the same question (meaning user hasn't manually tapped)
     if (quizVM.selectedOption != null) {
       _goToNextQuestion(quizVM);
     }
@@ -71,6 +68,8 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         leading: Semantics(
@@ -83,9 +82,16 @@ class _QuizScreenState extends State<QuizScreen> {
         title: Consumer<QuizViewModel>(
           builder: (context, quizVM, _) {
             final total = quizVM.quizCards.length;
-            final current = quizVM.currentIndex + 1;
-            return Text('Quiz $current / ${total == 0 ? 1 : total}',
-                style: const TextStyle(fontSize: 16));
+            final current =
+                (quizVM.currentIndex + 1).clamp(1, total == 0 ? 1 : total);
+            return Text(
+              'Quiz $current / ${total == 0 ? 1 : total}',
+              style: AppTypography.title.copyWith(
+                fontWeight: FontWeight.w600,
+                color:
+                    isDark ? AppColors.textPrimary : AppColors.lightTextPrimary,
+              ),
+            );
           },
         ),
         bottom: PreferredSize(
@@ -94,8 +100,11 @@ class _QuizScreenState extends State<QuizScreen> {
             builder: (context, quizVM, _) {
               final progress = quizVM.quizCards.isEmpty
                   ? 0.0
-                  : quizVM.currentIndex / quizVM.quizCards.length;
-              return ProgressBar(progress: progress);
+                  : (quizVM.currentIndex / quizVM.quizCards.length);
+              return LinearProgressIndicator(
+                value: progress,
+                minHeight: 3.5,
+              );
             },
           ),
         ),
@@ -108,11 +117,18 @@ class _QuizScreenState extends State<QuizScreen> {
 
           final card = quizVM.currentCard;
           if (card == null) {
-            return const Center(child: Text('Not enough cards for a quiz.'));
+            return const EmptyState(
+              message:
+                  'Not enough cards to start a quiz.\nAdd at least 4 cards to this deck.',
+              illustration: Icon(
+                LucideIcons.target,
+                size: 56,
+                color: AppColors.primaryLight,
+              ),
+            );
           }
 
           return GestureDetector(
-            // Tap anywhere to continue if answered incorrectly
             onTap: () {
               if (quizVM.selectedOption != null &&
                   quizVM.selectedOption != quizVM.correctOption) {
@@ -121,54 +137,106 @@ class _QuizScreenState extends State<QuizScreen> {
             },
             behavior: HitTestBehavior.opaque,
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Question Card
                   Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.all(24),
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 28),
                         decoration: BoxDecoration(
-                          color: AppColors.bgSurface,
+                          color: isDark
+                              ? AppColors.bgSurface
+                              : AppColors.lightBgSurface,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.divider.withValues(alpha: 0.4)
+                                : AppColors.divider.withValues(alpha: 0.15),
+                          ),
+                          boxShadow: [
                             BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 10,
-                                offset: Offset(0, 4))
+                              color: Colors.black
+                                  .withValues(alpha: isDark ? 0.25 : 0.06),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
+                            )
                           ],
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              'Select the correct meaning',
-                              style: AppTypography.label
-                                  .copyWith(color: AppColors.textSecondary),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'SELECT CORRECT MEANING',
+                                style: AppTypography.label.copyWith(
+                                  color: AppColors.primaryLight,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.0,
+                                  fontSize: 10,
+                                ),
+                              ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 18),
                             Text(
                               card.front,
-                              style: AppTypography.display,
+                              style: AppTypography.display.copyWith(
+                                fontSize: 28,
+                                color: isDark
+                                    ? AppColors.textPrimary
+                                    : AppColors.lightTextPrimary,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+                  )
+                      .animate(key: ValueKey('question_${card.id}'))
+                      .fadeIn(duration: 300.ms)
+                      .slideY(
+                          begin: 0.1,
+                          end: 0,
+                          duration: 300.ms,
+                          curve: Curves.easeOutCubic),
+                  const SizedBox(height: 16),
+                  // Choices List
                   Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: ListView.separated(
+                      key: ValueKey('options_${card.id}'),
                       itemCount: quizVM.currentOptions.length,
                       separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                       itemBuilder: (context, index) {
                         final option = quizVM.currentOptions[index];
-                        return _buildChoiceButton(option, quizVM);
+                        return _buildChoiceButton(option, quizVM)
+                            .animate()
+                            .fadeIn(
+                              duration: 250.ms,
+                              delay: (index * 50).ms,
+                            )
+                            .slideY(
+                              begin: 0.1,
+                              end: 0,
+                              duration: 250.ms,
+                              delay: (index * 50).ms,
+                              curve: Curves.easeOutCubic,
+                            );
                       },
                     ),
                   ),
@@ -185,50 +253,79 @@ class _QuizScreenState extends State<QuizScreen> {
     final isSelected = quizVM.selectedOption == option;
     final isCorrect = option == quizVM.correctOption;
     final showFeedback = quizVM.selectedOption != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    Color backgroundColor = AppColors.bgSurface;
-    Color borderColor = AppColors.divider;
+    Color backgroundColor =
+        isDark ? AppColors.bgSurface : AppColors.lightBgSurface;
+    Color borderColor = isDark
+        ? AppColors.divider.withValues(alpha: 0.4)
+        : AppColors.divider.withValues(alpha: 0.15);
     Widget? trailingIcon;
 
     if (showFeedback) {
       if (isCorrect) {
-        backgroundColor = AppColors.rateEasy.withValues(alpha: 0.2);
+        backgroundColor = AppColors.rateEasy.withValues(alpha: 0.18);
         borderColor = AppColors.rateEasy;
-        trailingIcon =
-            const Icon(LucideIcons.checkCircle2, color: AppColors.rateEasy);
+        trailingIcon = const Icon(
+          LucideIcons.checkCircle2,
+          color: AppColors.rateEasy,
+          size: 20,
+        );
       } else if (isSelected && !isCorrect) {
-        backgroundColor = AppColors.rateHard.withValues(alpha: 0.2);
+        backgroundColor = AppColors.rateHard.withValues(alpha: 0.18);
         borderColor = AppColors.rateHard;
-        trailingIcon =
-            const Icon(LucideIcons.xCircle, color: AppColors.rateHard);
+        trailingIcon = const Icon(
+          LucideIcons.xCircle,
+          color: AppColors.rateHard,
+          size: 20,
+        );
       }
     }
 
     return Semantics(
       label: 'Option: $option',
       button: true,
-      child: InkWell(
-        onTap: () => _onOptionSelected(option),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48), // A11y touch target
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderColor, width: 2),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  option,
-                  style: AppTypography.title
-                      .copyWith(color: AppColors.textPrimary),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _onOptionSelected(option),
+          borderRadius: BorderRadius.circular(14),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(14),
+              border:
+                  Border.all(color: borderColor, width: isSelected ? 2.0 : 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
                 ),
-              ),
-              if (trailingIcon != null) trailingIcon,
-            ],
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    option,
+                    style: AppTypography.title.copyWith(
+                      fontSize: 15,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isDark
+                          ? AppColors.textPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
+                  ),
+                ),
+                if (trailingIcon != null) trailingIcon,
+              ],
+            ),
           ),
         ),
       ),
