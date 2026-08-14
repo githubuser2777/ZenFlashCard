@@ -33,6 +33,8 @@ lib/
 ├── main.dart
 ├── app.dart                    # MaterialApp, ThemeData, routing
 ├── core/
+│   ├── di/
+│   │   └── service_locator.dart  # Dependency injection setup (get_it)
 │   ├── database/
 │   │   ├── database_helper.dart   # SQLite setup, migrations, indexes
 │   │   └── dao/
@@ -40,6 +42,10 @@ lib/
 │   │       ├── card_dao.dart          # Includes cards_due_today query
 │   │       ├── study_log_dao.dart
 │   │       └── review_history_dao.dart
+│   ├── repositories/
+│   │   └── deck_repository.dart  # Abstract repository pattern
+│   ├── routing/
+│   │   └── app_router.dart       # go_router configuration
 │   ├── models/
 │   │   ├── deck.dart
 │   │   ├── flashcard.dart
@@ -49,7 +55,8 @@ lib/
 │   │   └── sm2.dart              # Spaced Repetition SM-2 algorithm
 │   └── utils/
 │       ├── csv_parser.dart
-│       └── constants.dart
+│       ├── constants.dart
+│       └── failure.dart          # Error handling (fpdart Either<Failure, T>)
 ├── features/
 │   ├── home/
 │   │   ├── home_screen.dart

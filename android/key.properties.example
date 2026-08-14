@@ -1,0 +1,13 @@
+# Release signing configuration for ZenFlashCards
+# !! DO NOT commit this file to version control !!
+#
+# Steps to set up:
+# 1. Generate a keystore:
+#    keytool -genkey -v -keystore ~/zen-flashcards-release.jks \
+#      -keyalg RSA -keysize 2048 -validity 10000 -alias release
+# 2. Fill in the values below:
+#
+# storePassword=<your-keystore-password>
+# keyPassword=<your-key-password>
+# keyAlias=release
+# storeFile=<absolute-path-to-keystore>/zen-flashcards-release.jks
