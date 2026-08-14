@@ -71,5 +71,18 @@ void main() {
       verify(() => mockRepository.addDeck(testDeck)).called(1);
       verify(() => mockRepository.getAllDecks()).called(1);
     });
+
+    test('deleteDeck success removes deck and reloads', () async {
+      when(() => mockRepository.deleteDeck('1'))
+          .thenAnswer((_) async => const Right(null));
+      when(() => mockRepository.getAllDecks())
+          .thenAnswer((_) async => const Right([]));
+
+      await viewModel.deleteDeck('1');
+
+      verify(() => mockRepository.deleteDeck('1')).called(1);
+      verify(() => mockRepository.getAllDecks()).called(1);
+      expect(viewModel.decks, isEmpty);
+    });
   });
 }

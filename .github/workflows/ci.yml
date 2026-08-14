@@ -16,6 +16,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  secret-scan:
+    name: Secret & Credential Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Secret Scanner
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   analyze-and-test:
     name: Code Quality & Tests
     runs-on: ubuntu-latest
@@ -61,10 +76,24 @@ jobs:
       - name: Analyze Project (Linter)
         run: flutter analyze --fatal-infos --fatal-warnings
 
-      - name: Run Unit & Widget Tests
+      - name: Run Unit & Widget Tests with Coverage
         run: flutter test --coverage
 
-      - name: Upload Test Coverage
+      - name: Install LCOV
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Generate Coverage Summary
+        if: always()
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            echo "### 📊 Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
+            lcov --summary coverage/lcov.info > coverage_summary.txt 2>&1 || true
+            echo '```text' >> $GITHUB_STEP_SUMMARY
+            cat coverage_summary.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Test Coverage Artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
